@@ -1,13 +1,13 @@
-using System;
+using System.Drawing;
+using System.Numerics;
 using PcRGB.Model.Render;
 
 namespace PcRGB.Model.EffectLayers
 {
     public class MovingRainbowEffect : EffectLayer
     {
-        Vector2 Center = new Vector2(4, 13);
-
-        Vector2 Direction = new Vector2(0, 0);
+        Point Center = new Point(4, 13);
+        Point Direction = new Point(0, 0);
 
         public MovingRainbowEffect(int width, int height) : base("Moving Rainbow", width, height) { }
 
@@ -17,7 +17,7 @@ namespace PcRGB.Model.EffectLayers
             {
                 foreach (var pixel in row)
                 {
-                    double distanceToCenter = pixel.Position.DistanceTo(Center);
+                    float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
                     pixel.Color = new HSB(0, 255, 128);
                     pixel.Color.SetHueWithRange((int)distanceToCenter, 0, 20);
                 }
@@ -36,9 +36,9 @@ namespace PcRGB.Model.EffectLayers
                     }
                     break;
                 default:
-                    if (Center.Y++ >= Size.Y)
+                    if (Center.Y++ >= Size.Height)
                     {
-                        Center.Y = Size.Y - 1;
+                        Center.Y = Size.Height - 1;
                         Direction.Y = 1;
                     }
                     break;
@@ -47,7 +47,7 @@ namespace PcRGB.Model.EffectLayers
 
         public override void Update()
         {
-            if (!Running) return;
+            if (!Active) return;
 
             UpdatePixels();
 

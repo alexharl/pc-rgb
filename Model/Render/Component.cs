@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using PcRGB.Model.Control;
 using PcRGB.Model.Extensions;
 
@@ -9,11 +11,14 @@ namespace PcRGB.Model.Render
     {
         public string Name { get; set; }
         public byte Id { get; set; }
-        public List<Vector2> PixelPositions { get; set; }
+        public List<Point> PixelPositions { get; set; }
 
         public List<byte> BufferFrom(Layer layer)
         {
-            return ControllerCommand.SetComponent(Id).Buffer.AddPixels(PixelsFrom(layer));
+            return ControllerCommand
+                .SetComponent(Id)
+                .Buffer
+                .AddPixels(PixelsFrom(layer));
         }
 
         public List<Pixel> PixelsFrom(Layer layer)

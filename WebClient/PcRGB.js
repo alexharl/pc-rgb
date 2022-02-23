@@ -74,3 +74,71 @@ const PcRGB = async root => {
 
   return pcRGB;
 };
+
+/*
+
+export interface Point {
+  x: number;
+  y: number;
+}
+export interface Size {
+  width: number;
+  height: number;
+}
+export interface IHsbColor {
+  hue: number;
+  saturation: number;
+  brightness: number;
+  alpha: number;
+}
+export interface IPixel {
+  position: Point;
+  color: IHsbColor;
+}
+export interface IPixelNodeProps {
+  pixel: IPixel;
+}
+export const PixelNode: React.FC<IPixelNodeProps> = ({ pixel }) => {
+  const map = (value: number, x1: number, y1: number, x2: number, y2: number) => ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
+  const hue = map(pixel.color.hue, 0, 255, 360, 0) - 200;
+  const saturation = map(pixel.color.saturation, 0, 255, 0, 100);
+  const brightness = 100 - map(pixel.color.brightness, 0, 255, 0, 100);
+  const alpha = 1;
+  const hslValue = `hsl(${hue},${saturation}%,${brightness}%, ${alpha})`;
+  return <div className="w-2 h-2" style={{ backgroundColor: hslValue }}></div>;
+};
+export interface IPixelRowProps {
+  pixels: IPixel[];
+}
+export const PixelRow: React.FC<IPixelRowProps> = ({ pixels }) => {
+  return (
+    <div className="w-2 h-40">
+      {pixels.map(pixel => (
+        <PixelNode key={`pixel-${pixel.position.x}-${pixel.position.y}`} pixel={pixel} />
+      ))}
+    </div>
+  );
+};
+export interface ILayer {
+  id: string;
+  name: string;
+  blendMode: number;
+  pixels: IPixel[][];
+  layers: ILayer[];
+  position: Point;
+  size: Size;
+  visible: boolean;
+}
+export interface ILayerProps {
+  layer: ILayer;
+}
+export const Layer: React.FC<ILayerProps> = ({ layer }) => {
+  return (
+    <div className="flex">
+      {layer.pixels.map((row, index) => {
+        return <PixelRow key={`row-${index}`} pixels={row} />;
+      })}
+    </div>
+  );
+};
+*/

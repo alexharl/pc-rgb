@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using PcRGB.Model.Control;
 using PcRGB.Model.Render;
 

@@ -1,4 +1,4 @@
-using System;
+using System.Numerics;
 using PcRGB.Model.Render;
 
 namespace PcRGB.Model.EffectLayers
@@ -19,7 +19,7 @@ namespace PcRGB.Model.EffectLayers
                     byte hue = 0;
                     byte saturation = 0;
                     byte brightness = 0;
-                    bool transparent = false;
+                    float alpha = 1;
                     if (pixel.Position.X == Center.X && pixel.Position.Y != Center.Y)
                     {
                         // horizontale Linie
@@ -44,10 +44,9 @@ namespace PcRGB.Model.EffectLayers
                     else
                     {
                         // Alle anderen Punkte
-                        transparent = true;
+                        alpha = 0;
                     }
-                    pixel.Color = new HSB(hue, saturation, brightness);
-                    pixel.Transparent = transparent;
+                    pixel.Color = new HSB(hue, saturation, brightness, alpha);
                 }
             }
         }
@@ -64,9 +63,9 @@ namespace PcRGB.Model.EffectLayers
                     }
                     break;
                 default:
-                    if (Center.X++ >= Size.Y)
+                    if (Center.X++ >= Size.Height)
                     {
-                        Center.X = Size.Y - 1;
+                        Center.X = Size.Height - 1;
                         Direction.X = 1;
                     }
                     break;
@@ -81,9 +80,9 @@ namespace PcRGB.Model.EffectLayers
                     }
                     break;
                 default:
-                    if (Center.Y++ >= Size.X)
+                    if (Center.Y++ >= Size.Width)
                     {
-                        Center.Y = Size.X - 1;
+                        Center.Y = Size.Width - 1;
                         Direction.Y = 1;
                     }
                     break;
@@ -92,12 +91,10 @@ namespace PcRGB.Model.EffectLayers
 
         public override void Update()
         {
-            if (!Running) return;
+            if (!Active) return;
 
-            // Update Pixels
             UpdatePixels();
 
-            // Check / Update Direction
             MoveCenter();
         }
     }

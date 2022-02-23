@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace PcRGB.Model.Render
 {
@@ -19,20 +19,19 @@ namespace PcRGB.Model.Render
 
         public Layer(int width, int height)
         {
-            Size = new Vector2(width, height);
-            Position = new Vector2(0, 0);
+            Size = new Size(width, height);
+            Position = new Point(0, 0);
             InitPixels();
         }
 
         public static Layer From(Layer layer)
         {
-            var newLayer = new Layer(layer.Size.X, layer.Size.Y);
+            var newLayer = new Layer(layer.Size.Width, layer.Size.Height);
             layer.Each((index, row) =>
             {
                 Pixel from = layer.Pixels[row][index];
                 Pixel to = newLayer.Pixels[row][index];
-                to.Color = new HSB(from.Color.Hue, from.Color.Saturation, from.Color.Brightness);
-                to.Transparent = from.Transparent;
+                to.Color.CopyFrom(from.Color);
             });
             return newLayer;
         }
@@ -40,15 +39,15 @@ namespace PcRGB.Model.Render
         public void InitPixels()
         {
             Pixels = new List<List<Pixel>>();
-            for (var w = 0; w < Size.X; w++)
+            for (var w = 0; w < Size.Width; w++)
             {
                 var row = new List<Pixel>();
                 Pixels.Add(row);
-                for (var h = 0; h < Size.Y; h++)
+                for (var h = 0; h < Size.Height; h++)
                 {
                     row.Add(new Pixel
                     {
-                        Position = new Vector2(w, h),
+                        Position = new Point(w, h),
                         Color = new HSB(0, 0, 0)
                     });
                 }

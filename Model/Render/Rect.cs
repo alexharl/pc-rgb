@@ -1,17 +1,17 @@
+using System.Drawing;
 namespace PcRGB.Model.Render
 {
+    public delegate void PointEachDelegate(int index, int row);
     public class Rect
     {
-        public delegate void RowEach(int row);
-        public delegate void PointEach(int index, int row);
-        public Vector2 Position { get; set; }
-        public Vector2 Size { get; set; }
+        public Point Position { get; set; }
+        public Size Size { get; set; }
 
-        public void Each(PointEach point)
+        public void Each(PointEachDelegate point)
         {
-            for (int r = Position.X; r < Position.X + Size.X; r++)
+            for (int r = (int)Position.X; r < Position.X + Size.Width; r++)
             {
-                for (int index = Position.Y; index < Position.Y + Size.Y; index++)
+                for (int index = (int)Position.Y; index < Position.Y + Size.Height; index++)
                 {
                     point(index, r);
                 }
@@ -20,19 +20,19 @@ namespace PcRGB.Model.Render
 
         public Rect Intersection(Rect rect)
         {
-            if (Position.X + Size.X < rect.Position.X)
+            if (Position.X + Size.Width < rect.Position.X)
             {
                 // keine überschneidung -> endet links
             }
-            else if (rect.Position.X + rect.Size.X < Position.X)
+            else if (rect.Position.X + rect.Size.Width < Position.X)
             {
                 // keine überschneidung -> beginnt rechts
             }
-            else if (Position.Y + Size.Y < rect.Position.Y)
+            else if (Position.Y + Size.Height < rect.Position.Y)
             {
                 // keine überschneidung -> endet drüber
             }
-            else if (rect.Position.Y + rect.Size.Y < Position.Y)
+            else if (rect.Position.Y + rect.Size.Height < Position.Y)
             {
                 // keine überschneidung -> beginnt drunter
             }
@@ -49,19 +49,19 @@ namespace PcRGB.Model.Render
                     : Position.Y;
 
                 int endX =
-                    Position.X + Size.X > rect.Position.X + rect.Size.X
-                    ? rect.Position.X + rect.Size.X                         // rechts
-                    : Position.X + Size.X;
+                    Position.X + Size.Width > rect.Position.X + rect.Size.Width
+                    ? rect.Position.X + rect.Size.Width                         // rechts
+                    : Position.X + Size.Width;
 
                 int endY =
-                    Position.Y + Size.Y > rect.Position.Y + rect.Size.Y
-                    ? rect.Position.Y + rect.Size.Y                         // drunter
-                    : Position.Y + Size.Y;
+                    Position.Y + Size.Height > rect.Position.Y + rect.Size.Height
+                    ? rect.Position.Y + rect.Size.Height                         // drunter
+                    : Position.Y + Size.Height;
 
                 return new Rect
                 {
-                    Position = new Vector2(startX, startY),
-                    Size = new Vector2(endX - startX, endY - startY),
+                    Position = new Point(startX, startY),
+                    Size = new Size(endX - startX, endY - startY),
                 };
             }
             return null;

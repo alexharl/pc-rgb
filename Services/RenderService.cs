@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using PcRGB.Model.EffectLayers;
 using PcRGB.Model.Render;
 using Microsoft.Extensions.Hosting;
+using System.Numerics;
+using System.Drawing;
 
 /*
           0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19
@@ -58,96 +60,96 @@ namespace PcRGB.Services
             {
                 Id = 1,
                 Name = "Ram 1",
-                PixelPositions = new List<Vector2>{
-                    new Vector2(5,18),
-                    new Vector2(5,16),
-                    new Vector2(5,14),
-                    new Vector2(5,12),
-                    new Vector2(5,10),
-                    new Vector2(5,8),
-                    new Vector2(5,6),
-                    new Vector2(5,4)
+                PixelPositions = new List<Point>{
+                    new Point(5,18),
+                    new Point(5,16),
+                    new Point(5,14),
+                    new Point(5,12),
+                    new Point(5,10),
+                    new Point(5,8),
+                    new Point(5,6),
+                    new Point(5,4)
                 }
             });
             Components.Add(new Component
             {
                 Id = 2,
                 Name = "Ram 2",
-                PixelPositions = new List<Vector2>{
-                    new Vector2(4,18),
-                    new Vector2(4,16),
-                    new Vector2(4,14),
-                    new Vector2(4,12),
-                    new Vector2(4,10),
-                    new Vector2(4,8),
-                    new Vector2(4,6),
-                    new Vector2(4,4)
+                PixelPositions = new List<Point>{
+                    new Point(4,18),
+                    new Point(4,16),
+                    new Point(4,14),
+                    new Point(4,12),
+                    new Point(4,10),
+                    new Point(4,8),
+                    new Point(4,6),
+                    new Point(4,4)
                 }
             });
             Components.Add(new Component
             {
                 Id = 3,
                 Name = "Reservoire",
-                PixelPositions = new List<Vector2>{
-                    new Vector2(0,3),
-                    new Vector2(0,5),
-                    new Vector2(0,7),
-                    new Vector2(0,10),
-                    new Vector2(0,13),
-                    new Vector2(0,15)
+                PixelPositions = new List<Point>{
+                    new Point(0,3),
+                    new Point(0,5),
+                    new Point(0,7),
+                    new Point(0,10),
+                    new Point(0,13),
+                    new Point(0,15)
                 }
             });
             Components.Add(new Component
             {
                 Id = 4,
                 Name = "SSD",
-                PixelPositions = new List<Vector2>{
-                    new Vector2(15,3),
-                    new Vector2(14,3),
-                    new Vector2(13,3),
-                    new Vector2(12,3),
-                    new Vector2(11,3),
-                    new Vector2(10,3)
+                PixelPositions = new List<Point>{
+                    new Point(15,3),
+                    new Point(14,3),
+                    new Point(13,3),
+                    new Point(12,3),
+                    new Point(11,3),
+                    new Point(10,3)
                 }
             });
             Components.Add(new Component
             {
                 Id = 5,
                 Name = "CPU",
-                PixelPositions = new List<Vector2>{
-                    new Vector2(9,11),
-                    new Vector2(9,10),
-                    new Vector2(9,9),
-                    new Vector2(9,8),
+                PixelPositions = new List<Point>{
+                    new Point(9,11),
+                    new Point(9,10),
+                    new Point(9,9),
+                    new Point(9,8),
 
-                    new Vector2(10,7),
-                    new Vector2(11,7),
-                    new Vector2(12,7),
-                    new Vector2(13,7),
-                    new Vector2(14,7),
+                    new Point(10,7),
+                    new Point(11,7),
+                    new Point(12,7),
+                    new Point(13,7),
+                    new Point(14,7),
 
-                    new Vector2(15,8),
-                    new Vector2(15,9),
-                    new Vector2(15,10),
-                    new Vector2(15,11),
-                    new Vector2(15,12),
+                    new Point(15,8),
+                    new Point(15,9),
+                    new Point(15,10),
+                    new Point(15,11),
+                    new Point(15,12),
 
-                    new Vector2(14,13),
-                    new Vector2(13,13),
-                    new Vector2(12,13),
-                    new Vector2(11,13),
-                    new Vector2(10,13),
+                    new Point(14,13),
+                    new Point(13,13),
+                    new Point(12,13),
+                    new Point(11,13),
+                    new Point(10,13),
 
-                    new Vector2(9,12)
+                    new Point(9,12)
                 }
             });
 
-            var movingRainbowEffect = new MovingRainbowEffect(Canvas.Size.X, Canvas.Size.Y);
-            movingRainbowEffect.Running = true;
+            var movingRainbowEffect = new MovingRainbowEffect(Canvas.Size.Width, Canvas.Size.Height);
+            movingRainbowEffect.Activate();
             Canvas.Layers.Add(movingRainbowEffect);
 
-            var scanningLinesEffect = new ScanningLinesEffect(Canvas.Size.X, Canvas.Size.Y);
-            scanningLinesEffect.Running = true;
+            var scanningLinesEffect = new ScanningLinesEffect(Canvas.Size.Width, Canvas.Size.Height);
+            scanningLinesEffect.Activate();
             Canvas.Layers.Add(scanningLinesEffect);
 
             Canvas.Update();
