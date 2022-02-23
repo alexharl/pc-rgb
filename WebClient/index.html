@@ -1,77 +1,41 @@
 <html>
   <head>
     <title>Arduino RGB Serial Client</title>
+    <script src="./PcRGB.js"></script>
   </head>
   <body>
-    <div id="root"></div>
-    <button class="update-btn" onclick="update()">Update</button>
+    <div id="pcrgb"></div>
+    <button class="update-btn" onclick="pcRgb.update()">Update</button>
     <script>
-      const root = document.getElementById('root');
-
-      function mapInt(value, in_min, in_max, out_min, out_max) {
-        return ((value - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
-      }
-
-      async function getCanvas() {
-        const canvasLayerRequest = await fetch('http://localhost:5000/canvas');
-        if (canvasLayerRequest.status == 200) {
-          return JSON.parse(await canvasLayerRequest.text());
-        }
-      }
-
-      async function updateCanvas() {
-        const canvasLayerRequest = await fetch('http://localhost:5000/canvas', { method: 'POST' });
-        if (canvasLayerRequest.status == 200) {
-          return JSON.parse(await canvasLayerRequest.text());
-        }
-      }
-
-      async function renderCanvas(canvas) {
-        root.innerHTML = '';
-        for (let row of canvas.pixels) {
-          const rowNode = document.createElement('div');
-          rowNode.classList.add('row');
-          root.appendChild(rowNode);
-
-          for (let pixel of row) {
-            const pixelNode = document.createElement('div');
-            pixelNode.classList.add('pixel');
-            pixelNode.style.backgroundColor = `hsl(${mapInt(pixel.color.hue, 0, 255, 0, 360)},${mapInt(pixel.color.saturation, 0, 255, 0, 100)}%, ${
-              100 - mapInt(pixel.color.brightness, 0, 255, 0, 100)
-            }%)`;
-            rowNode.appendChild(pixelNode);
-          }
-        }
-      }
-      getCanvas().then(canvas => {
-        console.log('canvas', canvas);
-        renderCanvas(canvas);
+      const root = document.getElementById('pcrgb');
+      let pcRgb = undefined;
+      PcRGB(root).then(pcrgb => {
+        pcRgb = pcrgb;
       });
-
-      function update() {
-        updateCanvas().then(canvas => {
-          console.log('canvas', canvas);
-          renderCanvas(canvas);
-        });
-      }
     </script>
   </body>
   <style>
-    #root {
+    #pcrgb {
       position: relative;
+      display: flex;
     }
     .update-btn {
       position: absolute;
       top: 10;
       right: 10;
     }
-    .row {
+    .canvas {
       display: flex;
-      height: 20px;
+      margin: auto;
+    }
+    .row {
+      /* height: 400px;
+      width: 20px; */
     }
     .pixel {
       width: 20px;
       height: 20px;
+      border-radius: 50%;
     }
   </style>
 </html>

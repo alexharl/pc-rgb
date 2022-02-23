@@ -1,14 +1,18 @@
 using System.Collections.Generic;
 using PcRGB.Model.Control;
+using PcRGB.Model.Render;
 
 namespace PcRGB.Model.Extensions
 {
     public static class Extensions
     {
-        public static void AddCommand(this List<byte> buffer, ControllerCommand command)
+        public static List<byte> AddPixels(this List<byte> buffer, List<Pixel> pixels)
         {
-            buffer.AddRange(command.ToBuffer());
-            buffer.AddRange(command.Buffer);
+            foreach (var pixel in pixels)
+            {
+                buffer.AddRange(pixel.Color.ToBuffer());
+            }
+            return buffer;
         }
     }
 }

@@ -2,29 +2,29 @@ using System;
 
 namespace PcRGB.Model.Render
 {
-    public class Position
+    public class Vector2
     {
         public int X { get; set; }
         public int Y { get; set; }
 
-        public Position()
+        public Vector2()
         {
             X = 0;
             Y = 0;
         }
 
-        public Position(int x, int y)
+        public Vector2(int x, int y)
         {
             X = x;
             Y = y;
         }
 
-        public double DistanceTo(Position pos)
+        public double DistanceTo(Vector2 pos)
         {
-            return Position.Distance(this, pos);
+            return Vector2.Distance(this, pos);
         }
 
-        public static double Distance(Position pos1, Position pos2)
+        public static double Distance(Vector2 pos1, Vector2 pos2)
         {
             return Math.Sqrt(Math.Pow((pos2.X - pos1.X), 2) + Math.Pow((pos2.Y - pos1.Y), 2));
         }

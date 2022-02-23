@@ -37,8 +37,8 @@ namespace PcRGB.Services
     {
         private readonly SerialService _serialService;
 
-        public Canvas canvas;
-
+        public Layer Canvas;
+        public List<Component> Components = new List<Component>();
         public RenderService(SerialService serialService)
         {
             _serialService = serialService;
@@ -53,104 +53,124 @@ namespace PcRGB.Services
 
         private void CreateCanvas()
         {
-            canvas = new Canvas(20, 20);
-            canvas.Components.Add(new Component
+            Canvas = new Layer(20, 20);
+            Components.Add(new Component
             {
                 Id = 1,
                 Name = "Ram 1",
-                Pixels = new List<Pixel>{
-                    canvas.Pixels[18][5],
-                    canvas.Pixels[16][5],
-                    canvas.Pixels[14][5],
-                    canvas.Pixels[12][5],
-                    canvas.Pixels[10][5],
-                    canvas.Pixels[8][5],
-                    canvas.Pixels[6][5],
-                    canvas.Pixels[4][5]
+                PixelPositions = new List<Vector2>{
+                    new Vector2(5,18),
+                    new Vector2(5,16),
+                    new Vector2(5,14),
+                    new Vector2(5,12),
+                    new Vector2(5,10),
+                    new Vector2(5,8),
+                    new Vector2(5,6),
+                    new Vector2(5,4)
                 }
             });
-            canvas.Components.Add(new Component
+            Components.Add(new Component
             {
                 Id = 2,
                 Name = "Ram 2",
-                Pixels = new List<Pixel>{
-                    canvas.Pixels[18][4],
-                    canvas.Pixels[16][4],
-                    canvas.Pixels[14][4],
-                    canvas.Pixels[12][4],
-                    canvas.Pixels[10][4],
-                    canvas.Pixels[8][4],
-                    canvas.Pixels[6][4],
-                    canvas.Pixels[4][4]
+                PixelPositions = new List<Vector2>{
+                    new Vector2(4,18),
+                    new Vector2(4,16),
+                    new Vector2(4,14),
+                    new Vector2(4,12),
+                    new Vector2(4,10),
+                    new Vector2(4,8),
+                    new Vector2(4,6),
+                    new Vector2(4,4)
                 }
             });
-            canvas.Components.Add(new Component
+            Components.Add(new Component
             {
                 Id = 3,
                 Name = "Reservoire",
-                Pixels = new List<Pixel>{
-                    canvas.Pixels[3][0],
-                    canvas.Pixels[5][0],
-                    canvas.Pixels[7][0],
-                    canvas.Pixels[9][0],
-                    canvas.Pixels[11][0],
-                    canvas.Pixels[13][0]
+                PixelPositions = new List<Vector2>{
+                    new Vector2(0,3),
+                    new Vector2(0,5),
+                    new Vector2(0,7),
+                    new Vector2(0,10),
+                    new Vector2(0,13),
+                    new Vector2(0,15)
                 }
             });
-            canvas.Components.Add(new Component
+            Components.Add(new Component
             {
                 Id = 4,
                 Name = "SSD",
-                Pixels = new List<Pixel>{
-                    canvas.Pixels[3][15],
-                    canvas.Pixels[3][14],
-                    canvas.Pixels[3][13],
-                    canvas.Pixels[3][12],
-                    canvas.Pixels[3][11],
-                    canvas.Pixels[3][10]
+                PixelPositions = new List<Vector2>{
+                    new Vector2(15,3),
+                    new Vector2(14,3),
+                    new Vector2(13,3),
+                    new Vector2(12,3),
+                    new Vector2(11,3),
+                    new Vector2(10,3)
                 }
             });
-            canvas.Components.Add(new Component
+            Components.Add(new Component
             {
                 Id = 5,
                 Name = "CPU",
-                Pixels = new List<Pixel>{
-                    canvas.Pixels[11][9],
-                    canvas.Pixels[10][9],
-                    canvas.Pixels[9][9],
-                    canvas.Pixels[8][9],
+                PixelPositions = new List<Vector2>{
+                    new Vector2(9,11),
+                    new Vector2(9,10),
+                    new Vector2(9,9),
+                    new Vector2(9,8),
 
-                    canvas.Pixels[7][10],
-                    canvas.Pixels[7][11],
-                    canvas.Pixels[7][12],
-                    canvas.Pixels[7][13],
-                    canvas.Pixels[7][14],
+                    new Vector2(10,7),
+                    new Vector2(11,7),
+                    new Vector2(12,7),
+                    new Vector2(13,7),
+                    new Vector2(14,7),
 
-                    canvas.Pixels[8][15],
-                    canvas.Pixels[9][15],
-                    canvas.Pixels[10][15],
-                    canvas.Pixels[11][15],
-                    canvas.Pixels[12][15],
+                    new Vector2(15,8),
+                    new Vector2(15,9),
+                    new Vector2(15,10),
+                    new Vector2(15,11),
+                    new Vector2(15,12),
 
-                    canvas.Pixels[13][14],
-                    canvas.Pixels[13][13],
-                    canvas.Pixels[13][12],
-                    canvas.Pixels[13][11],
-                    canvas.Pixels[13][10],
+                    new Vector2(14,13),
+                    new Vector2(13,13),
+                    new Vector2(12,13),
+                    new Vector2(11,13),
+                    new Vector2(10,13),
 
-                    canvas.Pixels[12][9],
+                    new Vector2(9,12)
                 }
             });
 
-            var movingRainbowEffect = new MovingRainbowEffect(canvas.Width, canvas.Height);
+            var movingRainbowEffect = new MovingRainbowEffect(Canvas.Size.X, Canvas.Size.Y);
             movingRainbowEffect.Running = true;
-            canvas.Layers.Add(movingRainbowEffect);
+            Canvas.Layers.Add(movingRainbowEffect);
 
-            var scanningLinesEffect = new ScanningLinesEffect(canvas.Width, canvas.Height);
+            var scanningLinesEffect = new ScanningLinesEffect(Canvas.Size.X, Canvas.Size.Y);
             scanningLinesEffect.Running = true;
-            canvas.Layers.Add(scanningLinesEffect);
+            Canvas.Layers.Add(scanningLinesEffect);
 
-            canvas.Update();
+            Canvas.Update();
+        }
+
+        public Layer Render()
+        {
+            return Canvas.Render();
+        }
+
+        public Layer Update()
+        {
+            Canvas.Update();
+            var layer = Render();
+
+            var buffer = new List<byte>();
+            foreach (var component in Components)
+            {
+                buffer.AddRange(component.BufferFrom(layer));
+            }
+            _serialService.Write(buffer);
+
+            return layer;
         }
     }
 }

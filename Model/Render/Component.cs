@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PcRGB.Model.Control;
+using PcRGB.Model.Extensions;
 
 namespace PcRGB.Model.Render
 {
@@ -8,18 +9,16 @@ namespace PcRGB.Model.Render
     {
         public string Name { get; set; }
         public byte Id { get; set; }
-        public List<Pixel> Pixels { get; set; }
+        public List<Vector2> PixelPositions { get; set; }
 
-        public List<byte> ToBuffer()
+        public List<byte> BufferFrom(Layer layer)
         {
-            var command = ControllerCommand.SetComponent(Id);
-            var colors = Pixels.Select(p => p.Color);
-            foreach (var c in colors)
-            {
-                command.Buffer.AddRange(c.ToBuffer());
-            }
+            return ControllerCommand.SetComponent(Id).Buffer.AddPixels(PixelsFrom(layer));
+        }
 
-            return command.Buffer;
+        public List<Pixel> PixelsFrom(Layer layer)
+        {
+            return PixelPositions.Select(position => layer.Pixels[position.X][position.Y]).ToList();
         }
     }
 }

@@ -5,16 +5,13 @@ namespace PcRGB.Model.EffectLayers
 {
     public class ScanningLinesEffect : EffectLayer
     {
-        Position Center = new Position(0, 0);
-        int DirectionX = 1;
-        int DirectionY = 1;
+        Vector2 Center = new Vector2(0, 0);
+        Vector2 Direction = new Vector2(1, 1);
+
         public ScanningLinesEffect(int width, int height) : base("Scanning Lines", width, height) { }
 
-        public override void Update()
+        void UpdatePixels()
         {
-            if (!Running) return;
-
-            // Update Pixels
             foreach (var row in Pixels)
             {
                 foreach (var pixel in row)
@@ -30,11 +27,11 @@ namespace PcRGB.Model.EffectLayers
                         saturation = 0;
                         brightness = 128;
                     }
-                    else if (pixel.Position.X != Center.X && pixel.Position.Y == Center.Y)
+                    else if (pixel.Position.X != Center.X && (pixel.Position.Y == Center.Y || pixel.Position.Y == Center.Y - 1))
                     {
                         // vertikale Linie
                         hue = 160;
-                        saturation = 150;
+                        saturation = 0;
                         brightness = 128;
                     }
                     else if (pixel.Position.X == Center.X && pixel.Position.Y == Center.Y)
@@ -53,45 +50,55 @@ namespace PcRGB.Model.EffectLayers
                     pixel.Transparent = transparent;
                 }
             }
+        }
+
+        public void MoveCenter()
+        {
+            switch (Direction.X)
+            {
+                case 1:
+                    if (Center.X-- <= 0)
+                    {
+                        Center.X = 0;
+                        Direction.X = 0;
+                    }
+                    break;
+                default:
+                    if (Center.X++ >= Size.Y)
+                    {
+                        Center.X = Size.Y - 1;
+                        Direction.X = 1;
+                    }
+                    break;
+            }
+            switch (Direction.Y)
+            {
+                case 1:
+                    if (Center.Y-- <= 0)
+                    {
+                        Center.Y = 0;
+                        Direction.Y = 0;
+                    }
+                    break;
+                default:
+                    if (Center.Y++ >= Size.X)
+                    {
+                        Center.Y = Size.X - 1;
+                        Direction.Y = 1;
+                    }
+                    break;
+            }
+        }
+
+        public override void Update()
+        {
+            if (!Running) return;
+
+            // Update Pixels
+            UpdatePixels();
 
             // Check / Update Direction
-            if (DirectionX == 0)
-            {
-                Center.X++;
-                if (Center.X >= Height)
-                {
-                    Center.X = Height - 1;
-                    DirectionX = 1;
-                }
-            }
-            else
-            {
-                Center.X--;
-                if (Center.X <= 0)
-                {
-                    Center.X = 0;
-                    DirectionX = 0;
-                }
-            }
-
-            if (DirectionY == 0)
-            {
-                Center.Y++;
-                if (Center.Y >= Width)
-                {
-                    Center.Y = Width - 1;
-                    DirectionY = 1;
-                }
-            }
-            else
-            {
-                Center.Y--;
-                if (Center.Y <= 0)
-                {
-                    Center.Y = 0;
-                    DirectionY = 0;
-                }
-            }
+            MoveCenter();
         }
     }
 }

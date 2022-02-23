@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PcRGB.Services;
 using PcRGB.Model.Render;
+using System.Collections.Generic;
 
 namespace PcRGB.Controllers
 {
@@ -18,16 +19,21 @@ namespace PcRGB.Controllers
         }
 
         [HttpGet]
-        public Layer GetCanvas()
+        public Layer Render()
         {
-            return _renderService.canvas.Render();
+            return _renderService.Render();
         }
 
         [HttpPost]
-        public Layer UpdateCanvas()
+        public Layer Update()
         {
-            _renderService.canvas.Update();
-            return _renderService.canvas.Render();
+            return _renderService.Update();
+        }
+
+        [HttpGet("components")]
+        public IEnumerable<Component> GetComponents()
+        {
+            return _renderService.Components;
         }
     }
 }
