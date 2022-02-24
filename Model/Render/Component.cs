@@ -23,7 +23,7 @@ namespace PcRGB.Model.Render
 
         public List<Pixel> PixelsFrom(Layer layer)
         {
-            return PixelPositions.Select(position => layer.Pixels[position.X][position.Y]).ToList();
+            return PixelPositions.Select(position => layer.PixelAt(position.X, position.Y)).ToList();
         }
     }
 }

@@ -40,11 +40,12 @@ namespace PcRGB.Services
 {
     public class RenderService : BackgroundService
     {
-        private readonly SerialService _serialService;
-
-        public Layer Canvas;
+        public Renderer Renderer;
         public List<Component> Components = new List<Component>();
+
+        private readonly SerialService _serialService;
         private readonly IHubContext<CanvasHub> _hubContext;
+
         public RenderService(SerialService serialService, IHubContext<CanvasHub> hubContext)
         {
             _serialService = serialService;
@@ -58,9 +59,19 @@ namespace PcRGB.Services
             return Task.CompletedTask;
         }
 
-        private async Task CreateCanvas()
+        private void CreateCanvas()
         {
-            Canvas = new Layer(20, 20);
+            Renderer = new Renderer("Canvas", 20, 20, layer =>
+            {
+                var buffer = new List<byte>();
+                foreach (var component in Components)
+                {
+                    buffer.AddRange(component.BufferFrom(layer));
+                }
+                _serialService.Write(buffer);
+                _hubContext.Clients.All.SendAsync("layer", Renderer.Pixels);
+            });
+
             Components.Add(new Component
             {
                 Id = 1,
@@ -149,86 +160,34 @@ namespace PcRGB.Services
                 }
             });
 
-            var movingRainbowEffect = new MovingRainbowEffect(Canvas.Size.Width, Canvas.Size.Height);
+            var movingRainbowEffect = new MovingRainbowEffect(Renderer.Size.Width, Renderer.Size.Height);
             movingRainbowEffect.Activate();
-            Canvas.Layers.Add(movingRainbowEffect);
+            Renderer.Layers.Add(movingRainbowEffect);
 
-            // var scanningLinesEffect = new ScanningLinesEffect(Canvas.Size.Width, Canvas.Size.Height);
-            // scanningLinesEffect.Activate();
-            // Canvas.Layers.Add(scanningLinesEffect);
+            var scanningLinesEffect = new ScanningLinesEffect(Renderer.Size.Width, Renderer.Size.Height);
+            scanningLinesEffect.Activate();
+            Renderer.Layers.Add(scanningLinesEffect);
 
-            var diffusePointEffect = new DiffusePointEffect(Canvas.Size.Width, Canvas.Size.Height);
+            var diffusePointEffect = new DiffusePointEffect(Renderer.Size.Width, Renderer.Size.Height);
             diffusePointEffect.Activate();
-            Canvas.Layers.Add(diffusePointEffect);
+            Renderer.Layers.Add(diffusePointEffect);
 
-            source = new CancellationTokenSource();
-            token = source.Token;
-
-            await Task.Delay(2000);
-            Canvas.Update();
-        }
-
-        public int FrameTime = 30;
-        public CancellationToken token;
-        public CancellationTokenSource source;
-        public async Task AutoRender()
-        {
-            if (!token.IsCancellationRequested)
-            {
-                source.Cancel();
-                return;
-            }
-            source = new CancellationTokenSource();
-            token = source.Token;
-            while (!token.IsCancellationRequested)
-            {
-                Update();
-                await Task.Delay(FrameTime);
-            }
+            Renderer.Update();
         }
 
         public Layer SetLayerVisiblility(string layerId, bool visible)
         {
-            var layer = Canvas.Layers.Where(layer => layer.Id == layerId).FirstOrDefault();
+            var layer = Renderer.Layers.Where(layer => layer.Id == layerId).FirstOrDefault();
             if (layer != null)
             {
                 layer.Visible = visible;
             }
-            return Canvas;
+            return Renderer;
         }
 
         public Layer Render()
         {
-            return Canvas.Render();
-        }
-
-        public Layer Update()
-        {
-            Canvas.SetColor(new HSB(0, 0, 0));
-            Canvas.Update();
-            var layer = Render();
-
-            var buffer = new List<byte>();
-            foreach (var component in Components)
-            {
-                buffer.AddRange(component.BufferFrom(layer));
-            }
-            _serialService.Write(buffer);
-
-            var signal = new List<List<Pixel>>();
-            for (var r = 0; r < layer.Pixels.Count; r++)
-            {
-                var row = new List<Pixel>();
-                for (var c = 0; c < layer.Pixels[r].Count; c++)
-                {
-                    row.Add(layer.Pixels[c][r]);
-                }
-                signal.Add(row);
-            }
-            Console.WriteLine(signal);
-            _hubContext.Clients.All.SendAsync("layer", signal);
-
-            return layer;
+            return Renderer.Render();
         }
     }
 }

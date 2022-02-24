@@ -7,11 +7,7 @@ namespace PcRGB.Model.EffectLayers
     {
         public bool Active = false;
 
-        public EffectLayer(string name, int width, int height) : base(width, height)
-        {
-            Name = name;
-            Id = Guid.NewGuid().ToString();
-        }
+        public EffectLayer(string name, int width, int height) : base(name, width, height) { }
 
         public void Activate()
         {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -12,15 +13,17 @@ namespace PcRGB.Model.Render
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public List<List<Pixel>> Pixels { get; set; }
+        public List<Pixel> Pixels { get; set; }
 
         public LayerBlendMode BlendMode { get; set; } = LayerBlendMode.NORMAL;
         public List<Layer> Layers { get; set; } = new List<Layer>();
 
         public bool Visible { get; set; } = true;
 
-        public Layer(int width, int height)
+        public Layer(string name, int width, int height)
         {
+            Id = Guid.NewGuid().ToString();
+            Name = name;
             Size = new Size(width, height);
             Position = new Point(0, 0);
             InitPixels();
@@ -40,37 +43,40 @@ namespace PcRGB.Model.Render
         {
             Each((index, row) =>
             {
-                Pixels[row][index].Color = HSB.Copy(color);
+                PixelAt(row, index).Color = HSB.Copy(color);
             });
         }
 
         public static Layer From(Layer layer)
         {
-            var newLayer = new Layer(layer.Size.Width, layer.Size.Height);
+            var newLayer = new Layer(layer.Name, layer.Size.Width, layer.Size.Height);
             layer.Each((index, row) =>
             {
-                Pixel from = layer.Pixels[row][index];
-                Pixel to = newLayer.Pixels[row][index];
+                Pixel from = layer.PixelAt(row, index);
+                Pixel to = newLayer.PixelAt(row, index);
                 to.Color.CopyFrom(from.Color);
             });
             return newLayer;
         }
 
+        public Pixel PixelAt(int x, int y)
+        {
+            var index = (y * Size.Height) + x;
+            return Pixels[index];
+        }
+
         public void InitPixels()
         {
-            Pixels = new List<List<Pixel>>();
-            for (var w = 0; w < Size.Width; w++)
+            Pixels = new List<Pixel>();
+            for (var idx = 0; idx < Size.Width * Size.Height; idx++)
             {
-                var row = new List<Pixel>();
-                Pixels.Add(row);
-                for (var h = 0; h < Size.Height; h++)
+                var colIdx = idx % Size.Width;
+                var rowIdx = Math.Floor((float)(idx / Size.Height));
+                Pixels.Add(new Pixel
                 {
-                    row.Add(new Pixel
-                    {
-                        Position = new Point(w, h),
-                        Color = new HSB(0, 0, 0)
-                    });
-                }
+                    Position = new Point((int)rowIdx, colIdx),
+                    Color = new HSB(0, 0, 0)
+                });
             }
         }
 
@@ -80,8 +86,8 @@ namespace PcRGB.Model.Render
 
             Intersection(layer)?.Each((index, row) =>
             {
-                Pixel from = layer.Pixels[row][index];
-                Pixels[row][index].Apply(from);
+                Pixel from = layer.PixelAt(row, index);
+                PixelAt(row, index).Apply(from);
             });
         }
 

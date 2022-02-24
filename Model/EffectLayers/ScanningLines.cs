@@ -12,43 +12,41 @@ namespace PcRGB.Model.EffectLayers
 
         void UpdatePixels()
         {
-            foreach (var row in Pixels)
+            Each((index, row) =>
             {
-                foreach (var pixel in row)
+                var pixel = PixelAt(row, index);
+                byte hue = 0;
+                byte saturation = 0;
+                byte brightness = 0;
+                float alpha = 1;
+                if (pixel.Position.X == Center.X && pixel.Position.Y != Center.Y)
                 {
-                    byte hue = 0;
-                    byte saturation = 0;
-                    byte brightness = 0;
-                    float alpha = 1;
-                    if (pixel.Position.X == Center.X && pixel.Position.Y != Center.Y)
-                    {
-                        // horizontale Linie
-                        hue = 50;
-                        saturation = 0;
-                        brightness = 128;
-                    }
-                    else if (pixel.Position.X != Center.X && (pixel.Position.Y == Center.Y || pixel.Position.Y == Center.Y - 1))
-                    {
-                        // vertikale Linie
-                        hue = 160;
-                        saturation = 0;
-                        brightness = 128;
-                    }
-                    else if (pixel.Position.X == Center.X && pixel.Position.Y == Center.Y)
-                    {
-                        // exakter Punkt
-                        hue = 255;
-                        saturation = 0;
-                        brightness = 0;
-                    }
-                    else
-                    {
-                        // Alle anderen Punkte
-                        alpha = 0;
-                    }
-                    pixel.Color = new HSB(hue, saturation, brightness, alpha);
+                    // horizontale Linie
+                    hue = 50;
+                    saturation = 0;
+                    brightness = 128;
                 }
-            }
+                else if (pixel.Position.X != Center.X && pixel.Position.Y == Center.Y)
+                {
+                    // vertikale Linie
+                    hue = 160;
+                    saturation = 0;
+                    brightness = 128;
+                }
+                else if (pixel.Position.X == Center.X && pixel.Position.Y == Center.Y)
+                {
+                    // exakter Punkt
+                    hue = 255;
+                    saturation = 0;
+                    brightness = 0;
+                }
+                else
+                {
+                    // Alle anderen Punkte
+                    alpha = 0;
+                }
+                pixel.Color = new HSB(hue, saturation, brightness, alpha);
+            });
         }
 
         public void MoveCenter()

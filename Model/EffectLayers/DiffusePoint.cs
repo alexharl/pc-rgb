@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Numerics;
+using PcRGB.Model.Helper;
 using PcRGB.Model.Render;
 
 namespace PcRGB.Model.EffectLayers
@@ -17,21 +18,19 @@ namespace PcRGB.Model.EffectLayers
 
         void UpdatePixels()
         {
-            foreach (var row in Pixels)
+            Each((index, row) =>
             {
-                foreach (var pixel in row)
+                var pixel = PixelAt(row, index);
+                float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
+                if (distanceToCenter <= Radius + 2 && distanceToCenter >= Radius - 2)
                 {
-                    float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
-                    if (distanceToCenter <= Radius + 2 && distanceToCenter >= Radius - 2)
-                    {
-                        pixel.Color = new HSB(0, 0, (byte)HSB.Map(distanceToCenter, 0, Radius, 0, 255), 1);
-                    }
-                    else
-                    {
-                        pixel.Color = new HSB(0, 0, 0, 0);
-                    }
+                    pixel.Color = new HSB(0, 0, (byte)Math.Map(distanceToCenter, 0, Radius, 0, 255), 1);
                 }
-            }
+                else
+                {
+                    pixel.Color = new HSB(0, 0, 0, 0);
+                }
+            });
         }
         public void UpdateRadius()
         {

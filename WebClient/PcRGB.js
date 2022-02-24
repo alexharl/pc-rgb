@@ -2,224 +2,139 @@ const PcRGB = async root => {
   //////////////////
   // API          //
   //////////////////
-  const apiUrl = 'http://localhost:5000';
-  const apiJson = async (path, options) => {
-    const request = await fetch(apiUrl + path, options);
-    if (request.status == 200) {
-      return JSON.parse(await request.text());
+  const api = (() => {
+    const apiUrl = 'http://localhost:5000';
+    const apiJson = async (path, options) => {
+      const request = await fetch(apiUrl + path, options);
+      if (request.status == 200) {
+        return JSON.parse(await request.text());
+      }
+    };
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(apiUrl + '/canvasHub')
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    async function connectSignalR() {
+      try {
+        await connection.start();
+        console.log('SignalR Connected.');
+      } catch (err) {
+        console.log(err);
+        setTimeout(start, 5000);
+      }
     }
-  };
 
-  const api = {
-    getComponents: async () => await apiJson('/canvas/components'),
-    getCanvas: async () => await apiJson('/canvas'),
-    updateCanvas: async () => await apiJson('/canvas', { method: 'POST' }),
-    layerVisibility: async (id, visible) => await apiJson(`/canvas/layer/${id}/visible/${visible ? 1 : 0}`),
-    autoRender: async () => await apiJson('/canvas/render', { method: 'POST' })
-  };
-
-  //////////////////
-  // Render       //
-  //////////////////
-  const map = (value, x1, y1, x2, y2) => ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
-
-  const updatePixelNode = pixel => {
-    const pixelNodes = document.getElementsByClassName(`${pixel.position.x}-${pixel.position.y}`);
-    if (!!pixelNodes.length) {
-      const pixelNode = pixelNodes[0];
-      var h = map(pixel.color.hue, 0, 255, 360, 0) - 200;
-      const isComponentPixel = !!components.find(c => {
-        return !!c.pixelPositions.find(p => {
-          return p.y === pixel.position.y && p.x === pixel.position.x;
-        });
-      });
-      let a = isComponentPixel ? 1 : 0.3;
-      pixelNode.style.backgroundColor = `hsl(${h},${map(pixel.color.saturation, 0, 255, 0, 100)}%, ${100 - map(pixel.color.brightness, 0, 255, 0, 100)}%, ${a})`;
-    }
-  };
-  const createPixelNode = pixel => {
-    const pixelNode = document.createElement('div');
-    pixelNode.classList.add('pixel');
-    pixelNode.classList.add(`${pixel.position.x}-${pixel.position.y}`);
-    var h = map(pixel.color.hue, 0, 255, 360, 0) - 200;
-    const isComponentPixel = !!components.find(c => {
-      return !!c.pixelPositions.find(p => {
-        return p.y === pixel.position.y && p.x === pixel.position.x;
-      });
+    connection.onclose(async () => {
+      await connectSignalR();
     });
-    let a = isComponentPixel ? 1 : 0.3;
-    pixelNode.style.backgroundColor = `hsl(${h},${map(pixel.color.saturation, 0, 255, 0, 100)}%, ${100 - map(pixel.color.brightness, 0, 255, 0, 100)}%, ${a})`;
-    return pixelNode;
-  };
 
-  const canvasNode = document.createElement('div');
-  canvasNode.classList.add('canvas');
-  root.appendChild(canvasNode);
+    return {
+      connectSignalR,
+      onReceivePixels: callback => {
+        connection.on('layer', function (pixels) {
+          if (pixels) {
+            callback(pixels, components);
+          }
+        });
+      },
+      getComponents: async () => await apiJson('/canvas/components'),
+      getCanvas: async () => await apiJson('/canvas'),
+      layerVisibility: async (id, visible) => await apiJson(`/canvas/layer/${id}/visible/${visible ? 1 : 0}`),
+      animate: async () => await apiJson('/canvas/render', { method: 'POST' })
+    };
+  })();
 
-  let initial = true;
-  const render = () => {
-    if (initial) {
-      canvasNode.innerHTML = '';
-    }
-    for (let row of canvas.pixels) {
-      let rowNode = null;
-      if (initial) {
-        rowNode = document.createElement('div');
-        rowNode.classList.add('row');
-        canvasNode.appendChild(rowNode);
+  //////////////////
+  // Canvas       //
+  //////////////////
+  const canvas = (root => {
+    const canvasNode = document.createElement('canvas');
+    canvasNode.classList.add('canvas');
+    canvasNode.width = 400;
+    canvasNode.height = 400;
+    root.appendChild(canvasNode);
+
+    var canvasPixelRadius = 10;
+    var canvasPixelOffset = 20;
+
+    const map = (value, x1, y1, x2, y2) => ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
+
+    const update = (pixels, components) => {
+      const ctx = canvasNode.getContext('2d');
+      ctx.clearRect(0, 0, canvasNode.width, canvasNode.height);
+      for (let i = 0; i < pixels.length; i++) {
+        const pixel = pixels[i];
+
+        const hue = map(pixel.color.hue, 0, 255, 360, 0) - 200;
+        const saturation = map(pixel.color.saturation, 0, 255, 0, 100);
+        const brightness = 100 - map(pixel.color.brightness, 0, 255, 0, 100);
+
+        const isComponentPixel = components.find(c => {
+          return !!c.pixelPositions.find(p => {
+            return p.y === pixel.position.y && p.x === pixel.position.x;
+          });
+        });
+        let alpha = !!isComponentPixel ? 1 : 0.3;
+        const pixelPositionX = pixel.position.x * canvasPixelOffset + canvasPixelRadius + 1;
+        const pixelPositionY = pixel.position.y * canvasPixelOffset + canvasPixelRadius + 1;
+
+        ctx.beginPath();
+        ctx.arc(pixelPositionX, pixelPositionY, canvasPixelRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = `hsl(${hue},${saturation}%, ${brightness}%, ${alpha})`;
+        ctx.fill();
       }
-      for (let pixel of row) {
-        if (initial) {
-          rowNode.appendChild(createPixelNode(pixel));
-        } else {
-          updatePixelNode(pixel);
-        }
-      }
-    }
-    if (initial) {
-      initial = false;
-    }
+    };
+
+    return {
+      update
+    };
+  })(root);
+
+  //////////////////
+  // Startup      //
+  //////////////////
+  let components = await api.getComponents();
+  let canvasLayer = await api.getCanvas();
+  canvas.update(canvasLayer.pixels, components);
+
+  pcRGB = {
+    api,
+    components,
+    canvas,
+    render: () => api.animate()
   };
 
   //////////////////
-  // Update       //
+  // Layer Control//
   //////////////////
-  const update = async () => {
-    canvas = await api.getCanvas();
-    render();
-  };
-
-  const autoRender = async () => {
-    api.autoRender();
-  };
-
-  const components = await api.getComponents();
-
-  let canvas = await api.getCanvas();
   const buttonFrame = document.createElement('div');
   buttonFrame.classList.add('button-frame');
-  for (const layer of canvas.layers) {
+  const getLayerButtonText = layer => {
+    return layer.name + ' (' + (layer.visible ? 'ON' : 'OFF') + ')';
+  };
+  for (const layer of canvasLayer.layers) {
     const btn = document.createElement('button');
-    btn.innerText = layer.name + ' (' + (layer.visible ? 'ON' : 'OFF') + ')';
-    console.log(layer.name);
+    btn.innerText = getLayerButtonText(layer);
     btn.addEventListener('click', () => {
       layer.visible = !layer.visible;
-      btn.innerText = layer.name + ' (' + (layer.visible ? 'ON' : 'OFF') + ')';
+      btn.innerText = getLayerButtonText(layer);
       api.layerVisibility(layer.id, layer.visible);
     });
     buttonFrame.appendChild(btn);
   }
   root.appendChild(buttonFrame);
 
-  render();
-
-  const pcRGB = {
-    api,
-    components,
-    canvas,
-    update,
-    render: autoRender
-  };
-
-  const connection = new signalR.HubConnectionBuilder()
-    .withUrl(apiUrl + '/canvasHub')
-    .configureLogging(signalR.LogLevel.Information)
-    .build();
-
-  connection.on('layer', function (buffer) {
-    if (buffer) {
-      for (let r = 0; r < buffer.length; r++) {
-        for (let p = 0; p < buffer[r].length; p++) {
-          updatePixelNode(buffer[r][p]);
-        }
-      }
-    }
+  //////////////////
+  // SignalR      //
+  //////////////////
+  api.onReceivePixels(pixels => {
+    canvas.update(pixels, components);
   });
 
-  async function start() {
-    try {
-      await connection.start();
-      console.log('SignalR Connected.');
-    } catch (err) {
-      console.log(err);
-      setTimeout(start, 5000);
-    }
-  }
+  // Start the signalR connection.
+  api.connectSignalR();
 
-  connection.onclose(async () => {
-    await start();
-  });
-
-  // Start the connection.
-  start();
-
-  return pcRGB;
+  return pcRgb;
 };
-
-/*
-
-export interface Point {
-  x: number;
-  y: number;
-}
-export interface Size {
-  width: number;
-  height: number;
-}
-export interface IHsbColor {
-  hue: number;
-  saturation: number;
-  brightness: number;
-  alpha: number;
-}
-export interface IPixel {
-  position: Point;
-  color: IHsbColor;
-}
-export interface IPixelNodeProps {
-  pixel: IPixel;
-}
-export const PixelNode: React.FC<IPixelNodeProps> = ({ pixel }) => {
-  const map = (value: number, x1: number, y1: number, x2: number, y2: number) => ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
-  const hue = map(pixel.color.hue, 0, 255, 360, 0) - 200;
-  const saturation = map(pixel.color.saturation, 0, 255, 0, 100);
-  const brightness = 100 - map(pixel.color.brightness, 0, 255, 0, 100);
-  const alpha = 1;
-  const hslValue = `hsl(${hue},${saturation}%,${brightness}%, ${alpha})`;
-  return <div className="w-2 h-2" style={{ backgroundColor: hslValue }}></div>;
-};
-export interface IPixelRowProps {
-  pixels: IPixel[];
-}
-export const PixelRow: React.FC<IPixelRowProps> = ({ pixels }) => {
-  return (
-    <div className="w-2 h-40">
-      {pixels.map(pixel => (
-        <PixelNode key={`pixel-${pixel.position.x}-${pixel.position.y}`} pixel={pixel} />
-      ))}
-    </div>
-  );
-};
-export interface ILayer {
-  id: string;
-  name: string;
-  blendMode: number;
-  pixels: IPixel[][];
-  layers: ILayer[];
-  position: Point;
-  size: Size;
-  visible: boolean;
-}
-export interface ILayerProps {
-  layer: ILayer;
-}
-export const Layer: React.FC<ILayerProps> = ({ layer }) => {
-  return (
-    <div className="flex">
-      {layer.pixels.map((row, index) => {
-        return <PixelRow key={`row-${index}`} pixels={row} />;
-      })}
-    </div>
-  );
-};
-*/

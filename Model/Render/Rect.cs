@@ -40,22 +40,22 @@ namespace PcRGB.Model.Render
             {
                 int startX =
                     Position.X < rect.Position.X
-                    ? rect.Position.X                                       // links
+                    ? rect.Position.X
                     : Position.X;
 
                 int startY =
                     Position.Y < rect.Position.Y
-                    ? rect.Position.Y                                       // drüber
+                    ? rect.Position.Y
                     : Position.Y;
 
                 int endX =
                     Position.X + Size.Width > rect.Position.X + rect.Size.Width
-                    ? rect.Position.X + rect.Size.Width                         // rechts
+                    ? rect.Position.X + rect.Size.Width
                     : Position.X + Size.Width;
 
                 int endY =
                     Position.Y + Size.Height > rect.Position.Y + rect.Size.Height
-                    ? rect.Position.Y + rect.Size.Height                         // drunter
+                    ? rect.Position.Y + rect.Size.Height
                     : Position.Y + Size.Height;
 
                 return new Rect

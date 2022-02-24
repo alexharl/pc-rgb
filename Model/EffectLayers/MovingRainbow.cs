@@ -13,15 +13,13 @@ namespace PcRGB.Model.EffectLayers
 
         void UpdatePixels()
         {
-            foreach (var row in Pixels)
+            Each((index, row) =>
             {
-                foreach (var pixel in row)
-                {
-                    float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
-                    pixel.Color = new HSB(0, 255, 128);
-                    pixel.Color.SetHueWithRange((int)distanceToCenter, 0, 20);
-                }
-            }
+                var pixel = PixelAt(row, index);
+                float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
+                pixel.Color = new HSB(0, 255, 128);
+                pixel.Color.SetHueWithRange((int)distanceToCenter, 0, 20);
+            });
         }
 
         public void MoveCenter()

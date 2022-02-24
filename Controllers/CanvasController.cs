@@ -21,20 +21,21 @@ namespace PcRGB.Controllers
         [HttpGet]
         public Layer GetCanvas()
         {
-            return _renderService.Canvas;
+            return _renderService.Renderer;
         }
 
         [HttpPost]
         public Layer Update()
         {
-            return _renderService.Update();
+            _renderService.Renderer.Update();
+            return _renderService.Renderer;
         }
 
         [HttpPost("render")]
-        public bool ToggleAutoRender()
+        public Layer ToggleAutoRender()
         {
-            _ = _renderService.AutoRender();
-            return _renderService.token.IsCancellationRequested;
+            _ = _renderService.Renderer.Animate();
+            return _renderService.Renderer;
         }
 
         [HttpGet("components")]
