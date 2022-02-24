@@ -19,9 +19,9 @@ namespace PcRGB.Controllers
         }
 
         [HttpGet]
-        public Layer Render()
+        public Layer GetCanvas()
         {
-            return _renderService.Render();
+            return _renderService.Canvas;
         }
 
         [HttpPost]
@@ -30,10 +30,23 @@ namespace PcRGB.Controllers
             return _renderService.Update();
         }
 
+        [HttpPost("render")]
+        public bool ToggleAutoRender()
+        {
+            _ = _renderService.AutoRender();
+            return _renderService.token.IsCancellationRequested;
+        }
+
         [HttpGet("components")]
         public IEnumerable<Component> GetComponents()
         {
             return _renderService.Components;
+        }
+
+        [HttpGet("layer/{id}/visible/{visible}")]
+        public Layer SetLayerVisiblility([FromRoute] string id, [FromRoute] int visible)
+        {
+            return _renderService.SetLayerVisiblility(id, visible == 1);
         }
     }
 }

@@ -13,7 +13,9 @@ const PcRGB = async root => {
   const api = {
     getComponents: async () => await apiJson('/canvas/components'),
     getCanvas: async () => await apiJson('/canvas'),
-    updateCanvas: async () => await apiJson('/canvas', { method: 'POST' })
+    updateCanvas: async () => await apiJson('/canvas', { method: 'POST' }),
+    layerVisibility: async (id, visible) => await apiJson(`/canvas/layer/${id}/visible/${visible ? 1 : 0}`),
+    autoRender: async () => await apiJson('/canvas/render', { method: 'POST' })
   };
 
   //////////////////
@@ -21,6 +23,20 @@ const PcRGB = async root => {
   //////////////////
   const map = (value, x1, y1, x2, y2) => ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
 
+  const updatePixelNode = pixel => {
+    const pixelNodes = document.getElementsByClassName(`${pixel.position.x}-${pixel.position.y}`);
+    if (!!pixelNodes.length) {
+      const pixelNode = pixelNodes[0];
+      var h = map(pixel.color.hue, 0, 255, 360, 0) - 200;
+      const isComponentPixel = !!components.find(c => {
+        return !!c.pixelPositions.find(p => {
+          return p.y === pixel.position.y && p.x === pixel.position.x;
+        });
+      });
+      let a = isComponentPixel ? 1 : 0.3;
+      pixelNode.style.backgroundColor = `hsl(${h},${map(pixel.color.saturation, 0, 255, 0, 100)}%, ${100 - map(pixel.color.brightness, 0, 255, 0, 100)}%, ${a})`;
+    }
+  };
   const createPixelNode = pixel => {
     const pixelNode = document.createElement('div');
     pixelNode.classList.add('pixel');
@@ -40,15 +56,28 @@ const PcRGB = async root => {
   canvasNode.classList.add('canvas');
   root.appendChild(canvasNode);
 
+  let initial = true;
   const render = () => {
-    canvasNode.innerHTML = '';
+    if (initial) {
+      canvasNode.innerHTML = '';
+    }
     for (let row of canvas.pixels) {
-      const rowNode = document.createElement('div');
-      rowNode.classList.add('row');
-      canvasNode.appendChild(rowNode);
-      for (let pixel of row) {
-        rowNode.appendChild(createPixelNode(pixel));
+      let rowNode = null;
+      if (initial) {
+        rowNode = document.createElement('div');
+        rowNode.classList.add('row');
+        canvasNode.appendChild(rowNode);
       }
+      for (let pixel of row) {
+        if (initial) {
+          rowNode.appendChild(createPixelNode(pixel));
+        } else {
+          updatePixelNode(pixel);
+        }
+      }
+    }
+    if (initial) {
+      initial = false;
     }
   };
 
@@ -56,21 +85,73 @@ const PcRGB = async root => {
   // Update       //
   //////////////////
   const update = async () => {
-    canvas = await api.updateCanvas();
+    canvas = await api.getCanvas();
     render();
   };
 
+  const autoRender = async () => {
+    api.autoRender();
+  };
+
   const components = await api.getComponents();
+
   let canvas = await api.getCanvas();
-  console.log(components);
+  const buttonFrame = document.createElement('div');
+  buttonFrame.classList.add('button-frame');
+  for (const layer of canvas.layers) {
+    const btn = document.createElement('button');
+    btn.innerText = layer.name + ' (' + (layer.visible ? 'ON' : 'OFF') + ')';
+    console.log(layer.name);
+    btn.addEventListener('click', () => {
+      layer.visible = !layer.visible;
+      btn.innerText = layer.name + ' (' + (layer.visible ? 'ON' : 'OFF') + ')';
+      api.layerVisibility(layer.id, layer.visible);
+    });
+    buttonFrame.appendChild(btn);
+  }
+  root.appendChild(buttonFrame);
+
   render();
 
   const pcRGB = {
     api,
     components,
     canvas,
-    update
+    update,
+    render: autoRender
   };
+
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl(apiUrl + '/canvasHub')
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+
+  connection.on('layer', function (buffer) {
+    if (buffer) {
+      for (let r = 0; r < buffer.length; r++) {
+        for (let p = 0; p < buffer[r].length; p++) {
+          updatePixelNode(buffer[r][p]);
+        }
+      }
+    }
+  });
+
+  async function start() {
+    try {
+      await connection.start();
+      console.log('SignalR Connected.');
+    } catch (err) {
+      console.log(err);
+      setTimeout(start, 5000);
+    }
+  }
+
+  connection.onclose(async () => {
+    await start();
+  });
+
+  // Start the connection.
+  start();
 
   return pcRGB;
 };

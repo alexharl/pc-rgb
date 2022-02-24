@@ -7,6 +7,9 @@ using PcRGB.Model.Render;
 using Microsoft.Extensions.Hosting;
 using System.Numerics;
 using System.Drawing;
+using System.Linq;
+using Microsoft.AspNetCore.SignalR;
+using PcRGB.Hubs;
 
 /*
           0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19
@@ -41,9 +44,11 @@ namespace PcRGB.Services
 
         public Layer Canvas;
         public List<Component> Components = new List<Component>();
-        public RenderService(SerialService serialService)
+        private readonly IHubContext<CanvasHub> _hubContext;
+        public RenderService(SerialService serialService, IHubContext<CanvasHub> hubContext)
         {
             _serialService = serialService;
+            _hubContext = hubContext;
         }
 
         protected override Task ExecuteAsync(CancellationToken cancellationToken)
@@ -53,7 +58,7 @@ namespace PcRGB.Services
             return Task.CompletedTask;
         }
 
-        private void CreateCanvas()
+        private async Task CreateCanvas()
         {
             Canvas = new Layer(20, 20);
             Components.Add(new Component
@@ -148,11 +153,48 @@ namespace PcRGB.Services
             movingRainbowEffect.Activate();
             Canvas.Layers.Add(movingRainbowEffect);
 
-            var scanningLinesEffect = new ScanningLinesEffect(Canvas.Size.Width, Canvas.Size.Height);
-            scanningLinesEffect.Activate();
-            Canvas.Layers.Add(scanningLinesEffect);
+            // var scanningLinesEffect = new ScanningLinesEffect(Canvas.Size.Width, Canvas.Size.Height);
+            // scanningLinesEffect.Activate();
+            // Canvas.Layers.Add(scanningLinesEffect);
 
+            var diffusePointEffect = new DiffusePointEffect(Canvas.Size.Width, Canvas.Size.Height);
+            diffusePointEffect.Activate();
+            Canvas.Layers.Add(diffusePointEffect);
+
+            source = new CancellationTokenSource();
+            token = source.Token;
+
+            await Task.Delay(2000);
             Canvas.Update();
+        }
+
+        public int FrameTime = 30;
+        public CancellationToken token;
+        public CancellationTokenSource source;
+        public async Task AutoRender()
+        {
+            if (!token.IsCancellationRequested)
+            {
+                source.Cancel();
+                return;
+            }
+            source = new CancellationTokenSource();
+            token = source.Token;
+            while (!token.IsCancellationRequested)
+            {
+                Update();
+                await Task.Delay(FrameTime);
+            }
+        }
+
+        public Layer SetLayerVisiblility(string layerId, bool visible)
+        {
+            var layer = Canvas.Layers.Where(layer => layer.Id == layerId).FirstOrDefault();
+            if (layer != null)
+            {
+                layer.Visible = visible;
+            }
+            return Canvas;
         }
 
         public Layer Render()
@@ -162,6 +204,7 @@ namespace PcRGB.Services
 
         public Layer Update()
         {
+            Canvas.SetColor(new HSB(0, 0, 0));
             Canvas.Update();
             var layer = Render();
 
@@ -171,6 +214,19 @@ namespace PcRGB.Services
                 buffer.AddRange(component.BufferFrom(layer));
             }
             _serialService.Write(buffer);
+
+            var signal = new List<List<Pixel>>();
+            for (var r = 0; r < layer.Pixels.Count; r++)
+            {
+                var row = new List<Pixel>();
+                for (var c = 0; c < layer.Pixels[r].Count; c++)
+                {
+                    row.Add(layer.Pixels[c][r]);
+                }
+                signal.Add(row);
+            }
+            Console.WriteLine(signal);
+            _hubContext.Clients.All.SendAsync("layer", signal);
 
             return layer;
         }

@@ -1,11 +1,13 @@
 <html>
   <head>
     <title>Arduino RGB Serial Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script src="./PcRGB.js"></script>
   </head>
   <body>
     <div id="pcrgb"></div>
-    <button class="update-btn" onclick="pcRgb.update()">Update</button>
+    <!-- <button class="update-btn" onclick="pcRgb.update()">Update</button> -->
+    <button class="update-btn" onclick="pcRgb.render()">Render</button>
     <script>
       const root = document.getElementById('pcrgb');
       let pcRgb = undefined;
@@ -18,6 +20,7 @@
     #pcrgb {
       position: relative;
       display: flex;
+      flex-direction: column;
     }
     .update-btn {
       position: absolute;
@@ -36,6 +39,12 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
+    }
+    .button-frame {
+      padding-top: 30px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
     }
   </style>
 </html>

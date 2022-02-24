@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PcRGB.Hubs;
 
 namespace PcRGB
 {
@@ -31,9 +32,18 @@ namespace PcRGB
                 options.AddDefaultPolicy(
                                 builder =>
                                 {
-                                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                                    builder.WithOrigins("http://localhost:8000")
+                                        .AllowAnyMethod()
+                                        .AllowAnyHeader()
+                                        .AllowCredentials();
                                 });
             });
+
+            // signalR
+            services.AddSignalR().AddJsonProtocol(options =>
+              {
+                  options.PayloadSerializerOptions.IgnoreNullValues = true;
+              });
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -44,13 +54,12 @@ namespace PcRGB
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<CanvasHub>("/canvasHub");
                 endpoints.MapControllers();
             });
         }

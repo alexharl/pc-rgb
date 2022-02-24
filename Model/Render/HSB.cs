@@ -25,6 +25,11 @@ namespace PcRGB.Model.Render
             Alpha = a;
         }
 
+        public static HSB Copy(HSB color)
+        {
+            return new HSB(color.Hue, color.Saturation, color.Brightness, color.Alpha);
+        }
+
         public void CopyFrom(HSB color)
         {
             Hue = color.Hue;

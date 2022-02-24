@@ -10,11 +10,13 @@ namespace PcRGB.Model.Render
 
     public class Layer : Rect
     {
-        public string Name { get; set; }
         public string Id { get; set; }
-        public List<Layer> Layers { get; set; } = new List<Layer>();
+        public string Name { get; set; }
         public List<List<Pixel>> Pixels { get; set; }
+
         public LayerBlendMode BlendMode { get; set; } = LayerBlendMode.NORMAL;
+        public List<Layer> Layers { get; set; } = new List<Layer>();
+
         public bool Visible { get; set; } = true;
 
         public Layer(int width, int height)
@@ -22,6 +24,24 @@ namespace PcRGB.Model.Render
             Size = new Size(width, height);
             Position = new Point(0, 0);
             InitPixels();
+        }
+
+        public void Show()
+        {
+            Visible = true;
+        }
+
+        public void Hide()
+        {
+            Visible = false;
+        }
+
+        public void SetColor(HSB color)
+        {
+            Each((index, row) =>
+            {
+                Pixels[row][index].Color = HSB.Copy(color);
+            });
         }
 
         public static Layer From(Layer layer)
