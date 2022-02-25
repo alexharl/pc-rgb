@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PcRGB.Hubs;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace PcRGB
 {
@@ -53,6 +55,14 @@ namespace PcRGB
             {
                 app.UseDeveloperExceptionPage();
             }
+            // app.UseStaticFiles();
+            app.UseFileServer(new FileServerOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+                RequestPath = "",
+                EnableDefaultFiles = true
+            });
 
             app.UseRouting();
             app.UseAuthorization();
