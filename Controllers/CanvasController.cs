@@ -19,20 +19,20 @@ namespace PcRGB.Controllers
         }
 
         [HttpGet]
-        public Layer GetCanvas()
+        public Renderer GetCanvas()
         {
             return _renderService.Renderer;
         }
 
         [HttpPost]
-        public Layer Update()
+        public Renderer Update()
         {
             _renderService.Renderer.Update();
             return _renderService.Renderer;
         }
 
         [HttpPost("render")]
-        public Layer ToggleAutoRender()
+        public Renderer ToggleAutoRender()
         {
             _ = _renderService.Renderer.Animate();
             return _renderService.Renderer;
@@ -45,7 +45,7 @@ namespace PcRGB.Controllers
         }
 
         [HttpGet("layer/{id}/visible/{visible}")]
-        public Layer SetLayerVisiblility([FromRoute] string id, [FromRoute] int visible)
+        public Renderer SetLayerVisiblility([FromRoute] string id, [FromRoute] int visible)
         {
             return _renderService.SetLayerVisiblility(id, visible == 1);
         }

@@ -175,7 +175,7 @@ namespace PcRGB.Services
             Renderer.Update();
         }
 
-        public Layer SetLayerVisiblility(string layerId, bool visible)
+        public Renderer SetLayerVisiblility(string layerId, bool visible)
         {
             var layer = Renderer.Layers.Where(layer => layer.Id == layerId).FirstOrDefault();
             if (layer != null)
