@@ -1,0 +1,66 @@
+{
+  "name": "bain-react",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "@material-ui/x-grid": "4.0.0-alpha.22",
+    "@microsoft/signalr": "^5.0.3",
+    "@reduxjs/toolkit": "^1.5.0",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "lodash": "^4.17.20",
+    "polished": "^4.1.3",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-redux": "^7.2.2",
+    "react-scripts": "4.0.1",
+    "react-tiny-link": "^3.6.1",
+    "react-virtualized": "^9.22.3",
+    "redux": "^4.0.5",
+    "redux-logger": "^3.0.6",
+    "redux-saga": "^1.1.3",
+    "typescript": "^4.0.3",
+    "web-vitals": "^0.2.4"
+  },
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject",
+    "typedoc": "typedoc --out doc --tsconfig ./tsconfig.json --theme doc-theme ./src/"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.168",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.9.53",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-redux": "^7.1.16",
+    "@types/redux-logger": "^3.0.8",
+    "babel-plugin-transform-imports": "^2.0.0",
+    "customize-cra": "^1.0.0",
+    "react-app-rewired": "^2.1.8",
+    "sass": "^1.35.1"
+  }
+}

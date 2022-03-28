@@ -7,8 +7,26 @@ namespace PcRGB.Model.Render
 
     public class Renderer : Layer
     {
-        public int FrameTime = 100;
-        public bool Animating = true;
+        public int FrameTime { get; set; } = 100;
+        public bool Animating
+        {
+            get
+            {
+                return RenderCancellationTokenSource != null && RenderCancallationToken != null && !RenderCancallationToken.IsCancellationRequested;
+            }
+            set
+            {
+                if (!value)
+                {
+                    RenderCancellationTokenSource.Cancel();
+                }
+                else
+                {
+                    RenderCancellationTokenSource = new CancellationTokenSource();
+                    RenderCancallationToken = RenderCancellationTokenSource.Token;
+                }
+            }
+        }
 
         private CancellationToken RenderCancallationToken;
         private CancellationTokenSource RenderCancellationTokenSource;
@@ -22,22 +40,19 @@ namespace PcRGB.Model.Render
 
         public async Task Animate()
         {
-            if (RenderCancellationTokenSource != null && RenderCancallationToken != null && !RenderCancallationToken.IsCancellationRequested)
+            if (Animating)
             {
                 // is running
-                RenderCancellationTokenSource.Cancel();
                 Animating = false;
                 return;
             }
 
             // start
-            RenderCancellationTokenSource = new CancellationTokenSource();
-            RenderCancallationToken = RenderCancellationTokenSource.Token;
             Animating = true;
 
-            while (!RenderCancallationToken.IsCancellationRequested)
+            while (Animating)
             {
-                SetColor(new HSB(0, 0, 0));
+                Clear();
                 Update();
                 OnRendered(Render());
                 await Task.Delay(FrameTime);

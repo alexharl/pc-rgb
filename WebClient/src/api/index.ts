@@ -1,0 +1,64 @@
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+
+const apiUrl = 'http://localhost:5000';
+
+async function apiJson(path: string, options?: RequestInit) {
+  const request = await fetch(apiUrl + path, options);
+  if (request.status === 200) {
+    return JSON.parse(await request.text());
+  }
+}
+
+const createConnection = () => {
+  return new HubConnectionBuilder()
+    .withUrl(apiUrl + '/canvasHub')
+    .configureLogging(LogLevel.Information)
+    .build();
+};
+
+let connection = createConnection();
+
+export async function connectSignalR() {
+  if (connection.state !== 'Connected') {
+    connection = createConnection();
+  }
+  try {
+    await connection.start();
+    console.log('SignalR Connected.');
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
+export async function getComponents() {
+  return await apiJson('/canvas/components');
+}
+
+export async function getCanvas() {
+  return await apiJson('/canvas');
+}
+
+export async function layerVisibility(id, visible) {
+  return await apiJson(`/canvas/layer/${id}/visible/${visible ? 1 : 0}`);
+}
+
+export async function animate() {
+  return await apiJson('/canvas/render', { method: 'POST' });
+}
+
+export function onDisconnected(callback) {
+  connection.onclose(async () => {
+    connection = createConnection();
+    callback();
+  });
+}
+
+export function onReceivePixels(callback) {
+  connection.on('layer', function (pixels) {
+    if (pixels) {
+      callback(pixels);
+    }
+  });
+}

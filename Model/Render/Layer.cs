@@ -39,6 +39,11 @@ namespace PcRGB.Model.Render
             Visible = false;
         }
 
+        public void Clear()
+        {
+            SetColor(new HSB(0, 0, 0));
+        }
+
         public void SetColor(HSB color)
         {
             Each((index, row) =>
