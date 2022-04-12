@@ -1,5 +1,15 @@
-import { Button } from '@material-ui/core';
+import { Box, Fab } from '@material-ui/core';
+import { FC } from 'react';
 
-export const CanvasAnimateButton = ({ toggleAnimation }) => {
-  return <Button onClick={() => toggleAnimation()}>Animate</Button>;
+export interface ICanvasAnimateButtonProps {
+  animating: boolean;
+  toggleAnimation: () => void;
+}
+
+export const CanvasAnimateButton: FC<ICanvasAnimateButtonProps> = ({ animating, toggleAnimation }) => {
+  return (
+    <Fab onClick={() => toggleAnimation()} color={animating ? 'secondary' : 'primary'} aria-label="animate">
+      {animating ? 'Stop' : 'Start'}
+    </Fab>
+  );
 };

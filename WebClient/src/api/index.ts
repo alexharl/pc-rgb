@@ -3,8 +3,8 @@ import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 const apiUrl = 'http://localhost:5000';
 
 async function apiJson(path: string, options?: RequestInit) {
-  const request = await fetch(apiUrl + path, options);
-  if (request.status === 200) {
+  const request = await fetch(apiUrl + path, options).catch(e => null);
+  if (request && request.status === 200) {
     return JSON.parse(await request.text());
   }
 }
@@ -17,17 +17,12 @@ const createConnection = () => {
 };
 
 let connection = createConnection();
-
 export async function connectSignalR() {
-  if (connection.state !== 'Connected') {
-    connection = createConnection();
-  }
   try {
     await connection.start();
     console.log('SignalR Connected.');
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
@@ -48,11 +43,16 @@ export async function animate() {
   return await apiJson('/canvas/render', { method: 'POST' });
 }
 
+export async function setPixel(id, x, y) {
+  return await apiJson(`/canvas/layer/${id}/draw?x=${x}&y=${y}`, { method: 'POST' });
+}
+
 export function onDisconnected(callback) {
-  connection.onclose(async () => {
-    connection = createConnection();
-    callback();
-  });
+  connection.onclose(callback);
+}
+
+export function onReconnected(callback) {
+  connection.onreconnected(callback);
 }
 
 export function onReceivePixels(callback) {
@@ -60,5 +60,11 @@ export function onReceivePixels(callback) {
     if (pixels) {
       callback(pixels);
     }
+  });
+}
+
+export function onAnimating(callback) {
+  connection.on('animating', function (animating) {
+    callback(animating);
   });
 }

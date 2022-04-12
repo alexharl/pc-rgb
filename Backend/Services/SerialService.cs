@@ -16,9 +16,30 @@ namespace PcRGB.Services
         protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("[SerialService] ExecuteAsync");
-            port = new SerialPort("COM3", 19200, Parity.None, 8, StopBits.One);
-            port.DataReceived += new SerialDataReceivedEventHandler(handlePortDataReceived);
-            port.Open();
+
+            var portName = Environment.GetEnvironmentVariable("PCRGB__ComPortName");
+            var portBaud = Environment.GetEnvironmentVariable("PCRGB__ComPortBaudrate");
+
+            if (string.IsNullOrWhiteSpace(portName))
+            {
+                Console.WriteLine("[SerialService] Port not specified");
+            }
+            else
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(portBaud)) portBaud = "19200";
+
+                    port = new SerialPort(portName, Int32.Parse(portBaud), Parity.None, 8, StopBits.One);
+                    port.DataReceived += new SerialDataReceivedEventHandler(handlePortDataReceived);
+                    port.Open();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"[SerialService] {e.Message}");
+                }
+            }
+
             return Task.CompletedTask;
         }
 
@@ -39,7 +60,7 @@ namespace PcRGB.Services
 
         public void Write(IEnumerable<byte> buffer)
         {
-            port.Write(buffer.ToArray(), 0, buffer.Count());
+            port?.Write(buffer.ToArray(), 0, buffer.Count());
         }
     }
 }

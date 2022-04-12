@@ -39,9 +39,9 @@ namespace PcRGB.Model.Render
             Alpha = color.Alpha;
         }
 
-        public void SetHueWithRange(int hue, int from, int to)
+        public static byte MapToValue(float value, float from, float to)
         {
-            Hue = (byte)Math.Map(hue, from, to, 0, 255);
+            return (byte)Math.Map(value, from, to, 0, 255);
         }
 
         public List<byte> ToBuffer()

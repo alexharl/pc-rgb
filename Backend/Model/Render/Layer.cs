@@ -75,12 +75,12 @@ namespace PcRGB.Model.Render
             Pixels = new List<Pixel>();
             for (var idx = 0; idx < Size.Width * Size.Height; idx++)
             {
-                var colIdx = idx % Size.Width;
-                var rowIdx = Math.Floor((float)(idx / Size.Height));
+                var colIdx = Math.Floor((float)(idx / Size.Height));
+                var rowIdx = idx % Size.Width;
                 Pixels.Add(new Pixel
                 {
-                    Position = new Point((int)rowIdx, colIdx),
-                    Color = new HSB(0, 0, 0)
+                    Position = new Point((int)rowIdx, (int)colIdx),
+                    Color = new HSB(0, 0, 0, 0)
                 });
             }
         }

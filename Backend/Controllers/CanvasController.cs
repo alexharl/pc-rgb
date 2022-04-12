@@ -49,5 +49,11 @@ namespace PcRGB.Controllers
         {
             return _renderService.SetLayerVisiblility(id, visible == 1);
         }
+
+        [HttpPost("layer/{id}/draw")]
+        public Renderer SetPixel([FromRoute] string id, [FromQuery] int x, [FromQuery] int y)
+        {
+            return _renderService.SetPixel(id, x, y);
+        }
     }
 }

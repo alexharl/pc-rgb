@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
+using PcRGB.Model.Cofig;
 using PcRGB.Model.Control;
 using PcRGB.Model.Extensions;
 
@@ -24,6 +24,16 @@ namespace PcRGB.Model.Render
         public List<Pixel> PixelsFrom(Layer layer)
         {
             return PixelPositions.Select(position => layer.PixelAt(position.X, position.Y)).ToList();
+        }
+
+        public static Component FromConfig(ComponentConfig config)
+        {
+            return new Component
+            {
+                Name = config.Name,
+                Id = (byte)config.Id,
+                PixelPositions = config.PixelPositions.Select(p => new Point(p.X, p.Y)).ToList()
+            };
         }
     }
 }

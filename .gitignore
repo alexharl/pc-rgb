@@ -1,7 +1,9 @@
 .vscode
-/bin/**/*
-/obj/**/*
-*.db
+
+/Backend/wwwroot/**/*
+/Backend/bin/**/*
+/Backend/obj/**/*
+/Backend*.db
 
 /WebClient/build
 /WebClient/node_modules

@@ -1,5 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { Box, Paper } from '@material-ui/core';
+import { FC, useEffect, useRef, useState } from 'react';
 import { mapValueRange } from '../../helper/map';
+import { IComponent } from '../../model/Model';
+import { IPixel } from '../../model/Pixel';
 
 const useCanvas = callback => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -12,9 +15,19 @@ const useCanvas = callback => {
   return canvasRef;
 };
 
-export const Canvas = ({ pixels, components }) => {
-  const width = 400;
-  const height = 400;
+export interface ICanvasProps {
+  pixelWidth?: number;
+  pixelHeight?: number;
+  pixels?: IPixel[];
+  components?: IComponent[];
+  onPixelSelected?: (pixel: IPixel) => void;
+}
+
+export const Canvas: FC<ICanvasProps> = ({ pixelWidth, pixelHeight, pixels, components, onPixelSelected }) => {
+  const pixelSize = 20;
+
+  const width = (pixelWidth || 0) * pixelSize;
+  const height = (pixelHeight || 0) * pixelSize;
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
 
   const canvasRef = useCanvas(([canvas, context]) => {
@@ -23,7 +36,7 @@ export const Canvas = ({ pixels, components }) => {
 
   useEffect(() => {
     var pixelRadius = 10;
-    var pixelOffset = 20;
+    var pixelOffset = pixelSize;
     if (ctx && pixels) {
       ctx.clearRect(0, 0, width, height);
       for (let i = 0; i < pixels.length; i++) {
@@ -52,5 +65,22 @@ export const Canvas = ({ pixels, components }) => {
     }
   }, [pixels, ctx, components]);
 
-  return <canvas ref={canvasRef} width={width} height={height} />;
+  const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    if (onPixelSelected) {
+      const x = Math.floor(e.clientX / pixelSize);
+      const y = Math.floor(e.clientY / pixelSize);
+      const foundPixel = pixels && pixels.find(p => p.position.x === x && p.position.y === y);
+      if (foundPixel) {
+        onPixelSelected(foundPixel);
+      }
+    }
+  };
+
+  return (
+    <Paper elevation={3}>
+      <Box sx={{ padding: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <canvas ref={canvasRef} width={width} height={height} onClick={onCanvasClick} />
+      </Box>
+    </Paper>
+  );
 };

@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,7 +8,7 @@ namespace PcRGB.Model.Render
 
     public class Renderer : Layer
     {
-        public int FrameTime { get; set; } = 100;
+        public int FrameTime { get; set; } = 20;
         public bool Animating
         {
             get

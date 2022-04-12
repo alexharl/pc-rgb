@@ -5,11 +5,12 @@ using System.Threading.Tasks;
 using PcRGB.Model.EffectLayers;
 using PcRGB.Model.Render;
 using Microsoft.Extensions.Hosting;
-using System.Numerics;
-using System.Drawing;
 using System.Linq;
 using Microsoft.AspNetCore.SignalR;
 using PcRGB.Hubs;
+using System.IO;
+using Newtonsoft.Json;
+using PcRGB.Model.Cofig;
 
 /*
           0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19
@@ -55,111 +56,47 @@ namespace PcRGB.Services
         protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("[RenderService] ExecuteAsync");
-            CreateCanvas();
+
+            var configPath = Environment.GetEnvironmentVariable("PCRGB__ComponentsConfig");
+            if (!string.IsNullOrWhiteSpace(configPath))
+            {
+                LoadConfig(configPath);
+            }
+
+            CreateLayers();
+
+            Renderer?.Update();
+
             return Task.CompletedTask;
         }
 
-        private void CreateCanvas()
+        public void LoadConfig(string path)
         {
-            Renderer = new Renderer("Canvas", 20, 20, layer =>
+            using (StreamReader r = new StreamReader(path))
             {
-                var buffer = new List<byte>();
-                foreach (var component in Components)
+                string json = r.ReadToEnd();
+                RendererConfig config = JsonConvert.DeserializeObject<RendererConfig>(json);
+
+                Renderer = new Renderer(config.Name, config.Width, config.Height, layer =>
                 {
-                    buffer.AddRange(component.BufferFrom(layer));
-                }
-                _serialService.Write(buffer);
-                _hubContext.Clients.All.SendAsync("layer", Renderer.Pixels);
-            });
+                    var buffer = new List<byte>();
+                    foreach (var component in Components)
+                    {
+                        buffer.AddRange(component.BufferFrom(layer));
+                    }
+                    _serialService.Write(buffer);
+                    _hubContext.Clients.All.SendAsync("layer", Renderer.Pixels);
+                });
 
-            Components.Add(new Component
-            {
-                Id = 1,
-                Name = "Ram 1",
-                PixelPositions = new List<Point>{
-                    new Point(5,18),
-                    new Point(5,16),
-                    new Point(5,14),
-                    new Point(5,12),
-                    new Point(5,10),
-                    new Point(5,8),
-                    new Point(5,6),
-                    new Point(5,4)
+                if (config.Components?.Count() > 0)
+                {
+                    Components.AddRange(config.Components.Select(c => Component.FromConfig(c)));
                 }
-            });
-            Components.Add(new Component
-            {
-                Id = 2,
-                Name = "Ram 2",
-                PixelPositions = new List<Point>{
-                    new Point(4,18),
-                    new Point(4,16),
-                    new Point(4,14),
-                    new Point(4,12),
-                    new Point(4,10),
-                    new Point(4,8),
-                    new Point(4,6),
-                    new Point(4,4)
-                }
-            });
-            Components.Add(new Component
-            {
-                Id = 3,
-                Name = "Reservoire",
-                PixelPositions = new List<Point>{
-                    new Point(0,3),
-                    new Point(0,5),
-                    new Point(0,7),
-                    new Point(0,10),
-                    new Point(0,13),
-                    new Point(0,15)
-                }
-            });
-            Components.Add(new Component
-            {
-                Id = 4,
-                Name = "SSD",
-                PixelPositions = new List<Point>{
-                    new Point(15,3),
-                    new Point(14,3),
-                    new Point(13,3),
-                    new Point(12,3),
-                    new Point(11,3),
-                    new Point(10,3)
-                }
-            });
-            Components.Add(new Component
-            {
-                Id = 5,
-                Name = "CPU",
-                PixelPositions = new List<Point>{
-                    new Point(9,11),
-                    new Point(9,10),
-                    new Point(9,9),
-                    new Point(9,8),
+            }
+        }
 
-                    new Point(10,7),
-                    new Point(11,7),
-                    new Point(12,7),
-                    new Point(13,7),
-                    new Point(14,7),
-
-                    new Point(15,8),
-                    new Point(15,9),
-                    new Point(15,10),
-                    new Point(15,11),
-                    new Point(15,12),
-
-                    new Point(14,13),
-                    new Point(13,13),
-                    new Point(12,13),
-                    new Point(11,13),
-                    new Point(10,13),
-
-                    new Point(9,12)
-                }
-            });
-
+        private void CreateLayers()
+        {
             var movingRainbowEffect = new MovingRainbowEffect(Renderer.Size.Width, Renderer.Size.Height);
             movingRainbowEffect.Activate();
             Renderer.Layers.Add(movingRainbowEffect);
@@ -172,7 +109,9 @@ namespace PcRGB.Services
             diffusePointEffect.Activate();
             Renderer.Layers.Add(diffusePointEffect);
 
-            Renderer.Update();
+            var drawLayerEffect = new DrawLayerEffect(Renderer.Size.Width, Renderer.Size.Height);
+            drawLayerEffect.Activate();
+            Renderer.Layers.Add(drawLayerEffect);
         }
 
         public Renderer SetLayerVisiblility(string layerId, bool visible)
@@ -182,6 +121,21 @@ namespace PcRGB.Services
             {
                 layer.Visible = visible;
             }
+            return Renderer;
+        }
+
+        public Renderer SetPixel(string layerId, int x, int y)
+        {
+            var layer = Renderer.Layers.Where(layer => layer.Id == layerId).FirstOrDefault();
+            if (layer != null)
+            {
+                var pixel = layer.PixelAt(x, y);
+                if (pixel != null)
+                {
+                    pixel.Color = new HSB(0, 0, 255, 1);
+                }
+            }
+
             return Renderer;
         }
 
