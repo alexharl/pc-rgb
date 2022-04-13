@@ -12,9 +12,9 @@ namespace PcRGB.Model.EffectLayers
 
         void UpdatePixels()
         {
-            Each((index, row) =>
+            Each((x, y) =>
             {
-                var pixel = PixelAt(row, index);
+                var pixel = PixelAt(x, y);
                 byte hue = 0;
                 byte saturation = 0;
                 byte brightness = 0;

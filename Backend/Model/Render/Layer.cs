@@ -46,19 +46,19 @@ namespace PcRGB.Model.Render
 
         public void SetColor(HSB color)
         {
-            Each((index, row) =>
+            Each((x, y) =>
             {
-                PixelAt(row, index).Color = HSB.Copy(color);
+                PixelAt(x, y).Color = HSB.Copy(color);
             });
         }
 
         public static Layer From(Layer layer)
         {
             var newLayer = new Layer(layer.Name, layer.Size.Width, layer.Size.Height);
-            layer.Each((index, row) =>
+            layer.Each((x, y) =>
             {
-                Pixel from = layer.PixelAt(row, index);
-                Pixel to = newLayer.PixelAt(row, index);
+                Pixel from = layer.PixelAt(x, y);
+                Pixel to = newLayer.PixelAt(x, y);
                 to.Color.CopyFrom(from.Color);
             });
             return newLayer;
@@ -89,10 +89,10 @@ namespace PcRGB.Model.Render
         {
             if (!layer.Visible) return;
 
-            Intersection(layer)?.Each((index, row) =>
+            Intersection(layer)?.Each((x, y) =>
             {
-                Pixel from = layer.PixelAt(row, index);
-                PixelAt(row, index).Apply(from);
+                Pixel from = layer.PixelAt(x, y);
+                PixelAt(x, y).Apply(from);
             });
         }
 

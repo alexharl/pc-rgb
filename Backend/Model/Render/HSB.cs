@@ -43,10 +43,5 @@ namespace PcRGB.Model.Render
         {
             return (byte)Math.Map(value, from, to, 0, 255);
         }
-
-        public List<byte> ToBuffer()
-        {
-            return new List<byte> { Hue, Saturation, Brightness };
-        }
     }
 }

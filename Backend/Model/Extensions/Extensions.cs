@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Drawing;
-using PcRGB.Model.Control;
 using PcRGB.Model.Render;
 
 namespace PcRGB.Model.Extensions
@@ -11,7 +9,12 @@ namespace PcRGB.Model.Extensions
         {
             foreach (var pixel in pixels)
             {
-                buffer.AddRange(pixel.Color.ToBuffer());
+                buffer.AddRange(new List<byte>
+                {
+                    pixel.Color.Hue,
+                    pixel.Color.Saturation,
+                    pixel.Color.Brightness
+                });
             }
             return buffer;
         }

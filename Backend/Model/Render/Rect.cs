@@ -1,19 +1,21 @@
 using System.Drawing;
 namespace PcRGB.Model.Render
 {
-    public delegate void PointEachDelegate(int index, int row);
+    public delegate void PointEachDelegate(int x, int y);
+
     public class Rect
     {
+        public Rectangle R {get; set;}
         public Point Position { get; set; }
         public Size Size { get; set; }
 
         public void Each(PointEachDelegate point)
         {
-            for (int r = (int)Position.X; r < Position.X + Size.Width; r++)
+            for (int x = (int)Position.X; x < Position.X + Size.Width; x++)
             {
-                for (int index = (int)Position.Y; index < Position.Y + Size.Height; index++)
+                for (int y = (int)Position.Y; y < Position.Y + Size.Height; y++)
                 {
-                    point(index, r);
+                    point(x, y);
                 }
             }
         }
