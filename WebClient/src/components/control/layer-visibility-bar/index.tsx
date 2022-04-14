@@ -26,8 +26,8 @@ export const LayerVisibilityBar: FC<ILayerVisibilityBarProps> = ({ layers, setLa
           {layers &&
             layers.map(layer => {
               return (
-                <Box>
-                  <LayerVisibilityButton key={layer.id} layer={layer} setLayerVisibility={visible => setLayerVisibility(layer.id, visible)} />
+                <Box key={layer.id}>
+                  <LayerVisibilityButton layer={layer} setLayerVisibility={visible => setLayerVisibility(layer.id, visible)} />
                 </Box>
               );
             })}

@@ -7,7 +7,7 @@ namespace PcRGB.Model.EffectLayers
     {
         public bool Active = false;
 
-        public EffectLayer(string name, int width, int height) : base(name, width, height) { }
+        public EffectLayer(string name, int x, int y, int width, int height) : base(name, x, y, width, height) { }
 
         public void Activate()
         {

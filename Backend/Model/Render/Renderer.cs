@@ -34,7 +34,7 @@ namespace PcRGB.Model.Render
 
         private OnRenderedDelegate OnRendered;
 
-        public Renderer(string name, int width, int height, OnRenderedDelegate onRendered) : base(name, width, height)
+        public Renderer(string name, int width, int height, OnRenderedDelegate onRendered) : base(name, 0, 0, width, height)
         {
             OnRendered = onRendered;
         }

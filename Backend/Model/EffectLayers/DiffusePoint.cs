@@ -1,25 +1,28 @@
 using System.Drawing;
 using System.Numerics;
+using PcRGB.Model.Extensions;
 using PcRGB.Model.Render;
 
 namespace PcRGB.Model.EffectLayers
 {
     public class DiffusePointEffect : EffectLayer
     {
-        Point Center = new Point(5, 12);
+        Point Center = new Point(12, 10);
 
         float Radius = 0;
         float MaxRadius = 16;
         float Direction = 1;
         bool OutwardsOnly = true;
 
-        public DiffusePointEffect(int width, int height) : base("Diffuse Point", width, height) { }
+        public DiffusePointEffect(int x, int y, int width, int height) : base("Diffuse Point", x, y, width, height) { }
 
         void UpdatePixels()
         {
-            Each((x, y) =>
+            Rect.Each((x, y) =>
             {
-                var pixel = PixelAt(x, y);
+                var pixel = PixelAt(x - Rect.X, y - Rect.Y);
+                if (pixel == null) return;
+                
                 float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
                 pixel.Color = new HSB(0, 0, 0, 0);
 

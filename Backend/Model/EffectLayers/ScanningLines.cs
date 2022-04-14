@@ -1,4 +1,5 @@
 using System.Numerics;
+using PcRGB.Model.Extensions;
 using PcRGB.Model.Render;
 
 namespace PcRGB.Model.EffectLayers
@@ -8,13 +9,15 @@ namespace PcRGB.Model.EffectLayers
         Vector2 Center = new Vector2(0, 0);
         Vector2 Direction = new Vector2(1, 1);
 
-        public ScanningLinesEffect(int width, int height) : base("Scanning Lines", width, height) { }
+        public ScanningLinesEffect(int x, int y, int width, int height) : base("Scanning Lines", x, y, width, height) { }
 
         void UpdatePixels()
         {
-            Each((x, y) =>
+            Rect.Each((x, y) =>
             {
-                var pixel = PixelAt(x, y);
+                var pixel = PixelAt(x - Rect.X, y - Rect.Y);
+                if (pixel == null) return;
+
                 byte hue = 0;
                 byte saturation = 0;
                 byte brightness = 0;
@@ -23,21 +26,21 @@ namespace PcRGB.Model.EffectLayers
                 {
                     // horizontale Linie
                     hue = 50;
-                    saturation = 0;
+                    saturation = 255;
                     brightness = 128;
                 }
                 else if (pixel.Position.X != Center.X && pixel.Position.Y == Center.Y)
                 {
                     // vertikale Linie
                     hue = 160;
-                    saturation = 0;
+                    saturation = 255;
                     brightness = 128;
                 }
                 else if (pixel.Position.X == Center.X && pixel.Position.Y == Center.Y)
                 {
                     // exakter Punkt
                     hue = 255;
-                    saturation = 0;
+                    saturation = 255;
                     brightness = 0;
                 }
                 else
@@ -61,9 +64,9 @@ namespace PcRGB.Model.EffectLayers
                     }
                     break;
                 default:
-                    if (Center.X++ >= Size.Height)
+                    if (Center.X++ >= Rect.Size.Height)
                     {
-                        Center.X = Size.Height - 1;
+                        Center.X = Rect.Size.Height - 1;
                         Direction.X = 1;
                     }
                     break;
@@ -78,9 +81,9 @@ namespace PcRGB.Model.EffectLayers
                     }
                     break;
                 default:
-                    if (Center.Y++ >= Size.Width)
+                    if (Center.Y++ >= Rect.Size.Width)
                     {
-                        Center.Y = Size.Width - 1;
+                        Center.Y = Rect.Size.Width - 1;
                         Direction.Y = 1;
                     }
                     break;
