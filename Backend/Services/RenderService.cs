@@ -11,6 +11,7 @@ using PcRGB.Hubs;
 using System.IO;
 using Newtonsoft.Json;
 using PcRGB.Model.Cofig;
+using System.Drawing;
 
 /*
           0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19
@@ -97,19 +98,19 @@ namespace PcRGB.Services
 
         private void CreateLayers()
         {
-            var movingRainbowEffect = new MovingRainbowEffect(Renderer.Size.Width, Renderer.Size.Height);
+            var movingRainbowEffect = new MovingRainbowEffect(-5, 5, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
             movingRainbowEffect.Activate();
             Renderer.Layers.Add(movingRainbowEffect);
 
-            var scanningLinesEffect = new ScanningLinesEffect(Renderer.Size.Width, Renderer.Size.Height);
-            scanningLinesEffect.Activate();
-            Renderer.Layers.Add(scanningLinesEffect);
+            // var scanningLinesEffect = new ScanningLinesEffect(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
+            // scanningLinesEffect.Activate();
+            // Renderer.Layers.Add(scanningLinesEffect);
 
-            var diffusePointEffect = new DiffusePointEffect(Renderer.Size.Width, Renderer.Size.Height);
-            diffusePointEffect.Activate();
-            Renderer.Layers.Add(diffusePointEffect);
+            // var diffusePointEffect = new DiffusePointEffect(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
+            // diffusePointEffect.Activate();
+            // Renderer.Layers.Add(diffusePointEffect);
 
-            var drawLayerEffect = new DrawLayerEffect(Renderer.Size.Width, Renderer.Size.Height);
+            var drawLayerEffect = new DrawLayerEffect(3, 3, 5, 5);
             drawLayerEffect.Activate();
             Renderer.Layers.Add(drawLayerEffect);
         }

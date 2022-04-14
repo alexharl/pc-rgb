@@ -90,7 +90,7 @@ export const PcRGB = () => {
     <Container>
       <Box sx={{ display: 'flex', position: 'relative', paddingTop: '25px' }}>
         <Box>
-          <Canvas pixelHeight={canvas?.size.height} pixelWidth={canvas?.size.width} pixels={pixels} components={components} onPixelSelected={handlePixelSelected} />
+          <Canvas pixelHeight={canvas?.rect.size.height} pixelWidth={canvas?.rect.size.width} pixels={pixels} components={components} onPixelSelected={handlePixelSelected} />
         </Box>
         <Box sx={{ marginLeft: '20px' }}>
           <LayerVisibilityBar

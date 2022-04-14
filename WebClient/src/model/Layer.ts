@@ -5,7 +5,8 @@ export enum ELayerBlendMode {
   NORMAL = 1
 }
 
-export interface ILayer extends IRect {
+export interface ILayer {
+  rect: IRect;
   id: string;
   name: string;
   pixels: IPixel[];

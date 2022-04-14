@@ -1,5 +1,7 @@
+using System;
 using System.Drawing;
 using System.Numerics;
+using PcRGB.Model.Extensions;
 using PcRGB.Model.Helper;
 using PcRGB.Model.Render;
 
@@ -10,16 +12,22 @@ namespace PcRGB.Model.EffectLayers
         PointF Center = new PointF(4, 13);
         Point Direction = new Point(0, 0);
 
-        public MovingRainbowEffect(int width, int height) : base("Moving Rainbow", width, height) { }
+        public MovingRainbowEffect(int x, int y, int width, int height) : base("Moving Rainbow", x, y, width, height) { }
 
         void UpdatePixels()
         {
-            Each((x, y) =>
+            Rect.Each((x, y) =>
             {
-                var pixel = PixelAt(x, y);
+                var pixel = PixelAt(x - Rect.X, y - Rect.Y);
+                // var pixel = PixelAt(x, y);
+                if (pixel == null) return;
                 float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
                 pixel.Color = new HSB(0, 255, 128, 1);
                 pixel.Color.Hue = HSB.MapToValue(distanceToCenter, 0, 20);
+                if (y == 0)
+                {
+                    Console.WriteLine($"Set {x} {y} -> {pixel.Color.Hue}");
+                }
             });
         }
 
@@ -37,9 +45,9 @@ namespace PcRGB.Model.EffectLayers
                     break;
                 default:
                     Center.Y += 0.5f;
-                    if (Center.Y >= Size.Height - 1)
+                    if (Center.Y >= Rect.Size.Height - 1)
                     {
-                        Center.Y = Size.Height - 1;
+                        Center.Y = Rect.Size.Height - 1;
                         Direction.Y = 1;
                     }
                     break;
