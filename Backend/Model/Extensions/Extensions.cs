@@ -22,14 +22,9 @@ namespace PcRGB.Model.Extensions
 
         public static void Each(this Rectangle rect, PointEachDelegate point)
         {
-            for (int x = rect.X; x < rect.X + rect.Size.Width; x++)
-            {
-                for (int y = rect.Y; y < rect.Y + rect.Size.Height; y++)
-                {
+            for (int x = 0; x < rect.Size.Width; x++)
+                for (int y = 0; y < rect.Size.Height; y++)
                     point(x, y);
-                    // point(x - rect.X, y - rect.Y);
-                }
-            }
         }
     }
 }
