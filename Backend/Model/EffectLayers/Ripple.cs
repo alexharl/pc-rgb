@@ -5,7 +5,7 @@ using PcRGB.Model.Render;
 
 namespace PcRGB.Model.EffectLayers
 {
-    public class DiffusePointEffect : EffectLayer
+    public class Ripple : EffectLayer
     {
         Point Center = new Point(12, 10);
 
@@ -14,15 +14,15 @@ namespace PcRGB.Model.EffectLayers
         float Direction = 1;
         bool OutwardsOnly = true;
 
-        public DiffusePointEffect(int x, int y, int width, int height) : base("Diffuse Point", x, y, width, height) { }
+        public Ripple(int x, int y, int width, int height) : base("Ripple", x, y, width, height) { }
 
         void UpdatePixels()
         {
             Rect.Each((x, y) =>
             {
-                var pixel = PixelAt(x - Rect.X, y - Rect.Y);
+                var pixel = PixelAt(x, y);
                 if (pixel == null) return;
-                
+
                 float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
                 pixel.Color = new HSB(0, 0, 0, 0);
 

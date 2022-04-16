@@ -49,8 +49,7 @@ namespace PcRGB.Model.Render
         {
             Rect.Each((x, y) =>
             {
-                var pixel = PixelAt(x - Rect.X, y - Rect.Y);
-                // var pixel = PixelAt(x, y);
+                var pixel = PixelAt(x, y);
                 if (pixel != null)
                     pixel.Color = HSB.Copy(color);
             });
@@ -86,15 +85,13 @@ namespace PcRGB.Model.Render
         public void Apply(Layer layer)
         {
             if (!layer.Visible) return;
+
             var intersection = Rectangle.Intersect(Rect, layer.Rect);
             intersection.Each((x, y) =>
             {
-                Pixel from = layer.PixelAt(x - layer.Rect.X, y - layer.Rect.Y);
-                // Pixel from = layer.PixelAt(x + intersection.X - layer.Rect.X, y + intersection.Y - layer.Rect.Y);
+                Pixel from = layer.PixelAt(x, y);
                 if (from != null)
-                {
-                    PixelAt(x, y).Apply(from);
-                }
+                    PixelAt(x + intersection.X, y + intersection.Y).Apply(from);
             });
         }
 

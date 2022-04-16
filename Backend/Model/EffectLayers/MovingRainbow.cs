@@ -18,16 +18,11 @@ namespace PcRGB.Model.EffectLayers
         {
             Rect.Each((x, y) =>
             {
-                var pixel = PixelAt(x - Rect.X, y - Rect.Y);
-                // var pixel = PixelAt(x, y);
+                var pixel = PixelAt(x, y);
                 if (pixel == null) return;
                 float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
                 pixel.Color = new HSB(0, 255, 128, 1);
                 pixel.Color.Hue = HSB.MapToValue(distanceToCenter, 0, 20);
-                if (y == 0)
-                {
-                    Console.WriteLine($"Set {x} {y} -> {pixel.Color.Hue}");
-                }
             });
         }
 

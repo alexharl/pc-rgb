@@ -15,7 +15,7 @@ namespace PcRGB.Model.EffectLayers
         {
             Rect.Each((x, y) =>
             {
-                var pixel = PixelAt(x - Rect.X, y - Rect.Y);
+                var pixel = PixelAt(x, y);
                 if (pixel == null) return;
 
                 byte hue = 0;

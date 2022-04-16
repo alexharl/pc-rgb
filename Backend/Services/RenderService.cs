@@ -66,7 +66,7 @@ namespace PcRGB.Services
 
             CreateLayers();
 
-            Renderer?.Update();
+            _ = Renderer?.Animate();
 
             return Task.CompletedTask;
         }
@@ -98,20 +98,23 @@ namespace PcRGB.Services
 
         private void CreateLayers()
         {
-            var movingRainbowEffect = new MovingRainbowEffect(-5, 5, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
+            var movingRainbowEffect = new MovingRainbowEffect(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
             movingRainbowEffect.Activate();
             Renderer.Layers.Add(movingRainbowEffect);
 
-            // var scanningLinesEffect = new ScanningLinesEffect(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
-            // scanningLinesEffect.Activate();
-            // Renderer.Layers.Add(scanningLinesEffect);
+            var scanningLinesEffect = new ScanningLinesEffect(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
+            scanningLinesEffect.Activate();
+            scanningLinesEffect.Visible = false;
+            Renderer.Layers.Add(scanningLinesEffect);
 
-            // var diffusePointEffect = new DiffusePointEffect(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
-            // diffusePointEffect.Activate();
-            // Renderer.Layers.Add(diffusePointEffect);
+            var diffusePointEffect = new Ripple(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
+            diffusePointEffect.Activate();
+            diffusePointEffect.Visible = false;
+            Renderer.Layers.Add(diffusePointEffect);
 
-            var drawLayerEffect = new DrawLayerEffect(3, 3, 5, 5);
+            var drawLayerEffect = new DrawLayerEffect(3, 2, 5, 5);
             drawLayerEffect.Activate();
+            diffusePointEffect.Visible = false;
             Renderer.Layers.Add(drawLayerEffect);
         }
 
