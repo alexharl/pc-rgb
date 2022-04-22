@@ -1,6 +1,11 @@
 #include "FastLED.h"
 
-// indexes of components
+// number of LEDs on compoments
+int8_t NUM_LEDS[] = {12, 8, 8, 6, 6, 20};
+#define NUM_COMPONENTS 6 // always sizeof(NUM_LEDS)
+#define MAX_LEDS 20 // max number of leds a component can have
+
+// indexes of components (for readability)
 #define GPU 0
 #define RAM_1 1
 #define RAM_2 2
@@ -8,19 +13,13 @@
 #define SSD 4
 #define CPU 5
 
-// pins of components
+// pins of components (where are the components connected)
 #define GPU_PIN 48
 #define RAM_1_PIN 49
 #define RAM_2_PIN 50
 #define RESERVOIRE_PIN 51
 #define SSD_PIN 52
 #define CPU_PIN 53
-
-#define NUM_COMPONENTS 6
-#define MAX_LEDS 20
-
-// number of LEDs on compoments
-int8_t NUM_LEDS[] = {12, 8, 8, 6, 6, 20};
 
 // LED arrays for FastLED
 CRGB leds[NUM_COMPONENTS][MAX_LEDS];
@@ -62,24 +61,23 @@ int8_t current_command = WAITING_FOR_COMMAND;
 
 void checkIncommingData()
 {
-    // check incoming bytes available
-    if (Serial.available() > 0)
-    {
-        // read incominf byte
-        uint8_t value = Serial.read();
+    // wait for new serial data
+    while(Serial.available() == 0){}
 
-        // switch what to do with next byte
-        switch (current_command)
-        {
-        case WAITING_FOR_COMMAND:
-            handleNewCommand(value);
-            break;
-        case SET_COMPONENT:
-            handleNextByteSetComponent(value);
-            break;
-        default:
-            endCommand();
-        }
+    // read incoming byte
+    uint8_t value = Serial.read();
+
+    // switch what to do with next byte
+    switch (current_command)
+    {
+    case WAITING_FOR_COMMAND:
+        handleNewCommand(value);
+        break;
+    case SET_COMPONENT:
+        handleNextByteSetComponent(value);
+        break;
+    default:
+        endCommand();
     }
 }
 
