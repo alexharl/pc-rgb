@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,6 +40,13 @@ namespace PcRGB.Model.Render
             OnRendered = onRendered;
         }
 
+        public void Next()
+        {
+            Clear();
+            Update();
+            OnRendered(Render());
+        }
+
         public async Task Animate()
         {
             if (Animating)
@@ -50,12 +59,16 @@ namespace PcRGB.Model.Render
             // start
             Animating = true;
 
+            var sw = new Stopwatch();
             while (Animating)
             {
-                Clear();
-                Update();
-                OnRendered(Render());
-                await Task.Delay(FrameTime);
+                sw.Restart();
+                Next();
+
+                var nextFrameIn = FrameTime - sw.ElapsedMilliseconds;
+                if (nextFrameIn <= 0) nextFrameIn = 1;
+
+                await Task.Delay((int)nextFrameIn);
             }
         }
     }

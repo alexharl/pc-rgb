@@ -1,6 +1,6 @@
 import { Box, Container, Drawer } from '@material-ui/core';
 import { useEffect, useState } from 'react';
-import { animate, connectSignalR, getCanvas, getComponents, layerVisibility, onAnimating, onDisconnected, onReceivePixels, onReconnected, setPixel } from '../api';
+import { animate, connectSignalR, getCanvas, getComponents, layerVisibility, onAnimating, onDisconnected, onReceivePixels, onReconnected, setPixel, step } from '../api';
 import { Canvas } from '../components/canvas';
 import { CanvasAnimateButton } from '../components/control/canvas-animate-button';
 import { LayerVisibilityBar } from '../components/control/layer-visibility-bar';
@@ -115,6 +115,7 @@ export const PcRGB = () => {
               })
             }
           />
+          <CanvasAnimateButton animating={animating} toggleAnimation={() => step()} />
         </Box>
       </Box>
     </Container>

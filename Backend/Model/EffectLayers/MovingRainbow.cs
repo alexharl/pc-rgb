@@ -16,10 +16,8 @@ namespace PcRGB.Model.EffectLayers
 
         void UpdatePixels()
         {
-            Rect.Each((x, y) =>
+            Pixels.ForEach(pixel =>
             {
-                var pixel = PixelAt(x, y);
-                if (pixel == null) return;
                 float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
                 pixel.Color = new HSB(0, 255, 128, 1);
                 pixel.Color.Hue = HSB.MapToValue(distanceToCenter, 0, 20);
@@ -31,7 +29,7 @@ namespace PcRGB.Model.EffectLayers
             switch (Direction.Y)
             {
                 case 1:
-                    Center.Y -= 0.5f;
+                    Center.Y -= 0.2f;
                     if (Center.Y <= 0)
                     {
                         Center.Y = 0;
@@ -39,7 +37,7 @@ namespace PcRGB.Model.EffectLayers
                     }
                     break;
                 default:
-                    Center.Y += 0.5f;
+                    Center.Y += 0.2f;
                     if (Center.Y >= Rect.Size.Height - 1)
                     {
                         Center.Y = Rect.Size.Height - 1;

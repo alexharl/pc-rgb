@@ -97,7 +97,8 @@ First byte received specifies the command:
 ## SET_COMPONENT
 
 Second byte specifies index of component.  
-Number of expected bytes is calculated from `NUM_LEDS[index]` times `3` (for Hue, Saturation und Brightness)    
+Number of expected bytes is calculated from `NUM_LEDS[index]` times `3` (for Hue, Saturation und Brightness)
+
 ```
 SET_COMPONENT
 |
@@ -109,11 +110,15 @@ SET_COMPONENT
       |   |   |  |       |
       |   |   |   -------
       |   |   |    LED 2
-      |   |   |      
+      |   |   |
       |   |   |
       |   |   - Brightness
       |   ----- Saturation
       --------- Hue
 ```
 
-All bytes for a component are read and color values are stored in CRGB leds array. After all bytes for a component were read, `FastLED.show()` ist called.
+All bytes for a component are read and color values are stored in CRGB leds array.
+
+## SHOW
+
+If the first byte transmitted is `2` `FastLED.show()` ist called.

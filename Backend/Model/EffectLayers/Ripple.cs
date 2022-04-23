@@ -18,11 +18,8 @@ namespace PcRGB.Model.EffectLayers
 
         void UpdatePixels()
         {
-            Rect.Each((x, y) =>
+            Pixels.ForEach(pixel =>
             {
-                var pixel = PixelAt(x, y);
-                if (pixel == null) return;
-
                 float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
                 pixel.Color = new HSB(0, 0, 0, 0);
 

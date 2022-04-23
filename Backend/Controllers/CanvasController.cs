@@ -38,6 +38,13 @@ namespace PcRGB.Controllers
             return _renderService.Renderer;
         }
 
+        [HttpPost("step")]
+        public Renderer Step()
+        {
+            _renderService.Renderer.Next();
+            return _renderService.Renderer;
+        }
+
         [HttpGet("components")]
         public IEnumerable<Component> GetComponents()
         {

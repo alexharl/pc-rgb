@@ -43,6 +43,10 @@ export async function animate() {
   return await apiJson('/canvas/render', { method: 'POST' });
 }
 
+export async function step() {
+  return await apiJson('/canvas/step', { method: 'POST' });
+}
+
 export async function setPixel(id, x, y) {
   return await apiJson(`/canvas/layer/${id}/draw?x=${x}&y=${y}`, { method: 'POST' });
 }

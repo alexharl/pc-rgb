@@ -5,6 +5,9 @@ using PcRGB.Model.Extensions;
 
 namespace PcRGB.Model.Render
 {
+    public delegate void PointEachDelegate(int x, int y);
+    public delegate void PixelEachDelegate(Pixel pixel);
+
     public enum LayerBlendMode
     {
         NORMAL = 1
@@ -47,39 +50,31 @@ namespace PcRGB.Model.Render
 
         public void SetColor(HSB color)
         {
-            Rect.Each((x, y) =>
-            {
-                var pixel = PixelAt(x, y);
-                if (pixel != null)
-                    pixel.Color = HSB.Copy(color);
-            });
+            Pixels.ForEach(pixel => pixel.Color = HSB.Copy(color));
         }
 
         public Pixel PixelAt(int x, int y)
         {
-            if (x >= 0 && x < Rect.Width && y >= 0 && y < Rect.Height)
-            {
-                var index = (y * Rect.Size.Height) + x;
-                if (index >= 0 && index < Pixels.Count)
-                    return Pixels[index];
-            }
+            if (x < 0 || x > Rect.Width) return null; // x out of bounds
+            if (y < 0 || y > Rect.Height) return null; // y out of bounds
 
-            return null;
+            var index = (y * Rect.Size.Height) + x;
+            if (index < 0 || index >= Pixels.Count) return null; // pixel index out of bounds
+
+            return Pixels[index];
         }
 
         public void InitPixels()
         {
             Pixels = new List<Pixel>();
-            for (var idx = 0; idx < Rect.Size.Width * Rect.Size.Height; idx++)
+            Rect.Each((x, y) =>
             {
-                var colIdx = Math.Floor((float)(idx / Rect.Size.Height));
-                var rowIdx = idx % Rect.Size.Width;
                 Pixels.Add(new Pixel
                 {
-                    Position = new Point((int)rowIdx, (int)colIdx),
+                    Position = new Point(x, y),
                     Color = new HSB(0, 0, 0, 0)
                 });
-            }
+            });
         }
 
         public void Apply(Layer layer)

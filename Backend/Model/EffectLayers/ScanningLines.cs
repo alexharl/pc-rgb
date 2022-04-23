@@ -13,11 +13,8 @@ namespace PcRGB.Model.EffectLayers
 
         void UpdatePixels()
         {
-            Rect.Each((x, y) =>
+            Pixels.ForEach(pixel =>
             {
-                var pixel = PixelAt(x, y);
-                if (pixel == null) return;
-
                 byte hue = 0;
                 byte saturation = 0;
                 byte brightness = 0;

@@ -8,4 +8,6 @@
 /WebClient/build
 /WebClient/node_modules
 
+/Arduino/build
+
 debug.log*
