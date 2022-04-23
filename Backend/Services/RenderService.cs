@@ -11,7 +11,6 @@ using PcRGB.Hubs;
 using System.IO;
 using Newtonsoft.Json;
 using PcRGB.Model.Cofig;
-using System.Drawing;
 using PcRGB.Model.Control;
 
 /*

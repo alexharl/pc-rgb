@@ -1,4 +1,3 @@
-using PcRGB.Model.Extensions;
 using PcRGB.Model.Render;
 
 namespace PcRGB.Model.EffectLayers

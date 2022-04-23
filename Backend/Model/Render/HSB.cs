@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using PcRGB.Model.Helper;
 
 namespace PcRGB.Model.Render

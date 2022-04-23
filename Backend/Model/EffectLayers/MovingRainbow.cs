@@ -1,10 +1,6 @@
-using System;
 using System.Drawing;
 using System.Numerics;
-using PcRGB.Model.Extensions;
-using PcRGB.Model.Helper;
 using PcRGB.Model.Render;
-
 namespace PcRGB.Model.EffectLayers
 {
     public class MovingRainbowEffect : EffectLayer
