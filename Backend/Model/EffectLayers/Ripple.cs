@@ -6,12 +6,12 @@ namespace PcRGB.Model.EffectLayers
 {
     public class Ripple : EffectLayer
     {
-        Point Center = new Point(12, 10);
+        PointF Center = new PointF(12, 10);
 
         float Radius = 0;
         float MaxRadius = 16;
         float Direction = 1;
-        bool OutwardsOnly = true;
+        bool OutwardsOnly = false;
 
         public Ripple(int x, int y, int width, int height) : base("Ripple", x, y, width, height) { }
 
@@ -24,7 +24,7 @@ namespace PcRGB.Model.EffectLayers
 
                 if (distanceToCenter <= Radius + 2 && distanceToCenter >= Radius - 2)
                 {
-                    pixel.Color.Brightness = HSB.MapToValue(distanceToCenter, 0, Radius);
+                    pixel.Color.Brightness = HSB.MapToValue(distanceToCenter, Radius - 2, Radius + 2);
                     pixel.Color.Alpha = 1;
                 }
             });
@@ -34,7 +34,8 @@ namespace PcRGB.Model.EffectLayers
             switch (Direction)
             {
                 case 1:
-                    if (Radius++ >= MaxRadius)
+                    Radius += 0.2f;
+                    if (Radius >= MaxRadius)
                     {
                         if (OutwardsOnly)
                         {
@@ -48,7 +49,8 @@ namespace PcRGB.Model.EffectLayers
                     }
                     break;
                 default:
-                    if (Radius-- <= 0)
+                    Radius -= 0.2f;
+                    if (Radius <= 0)
                     {
                         Radius = 0;
                         Direction = 1;

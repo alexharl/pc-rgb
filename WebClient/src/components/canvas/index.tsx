@@ -50,7 +50,7 @@ export const Canvas: FC<ICanvasProps> = ({ pixelWidth, pixelHeight, pixels, comp
           components &&
           components.find(c => {
             return !!c.pixelPositions.find(p => {
-              return p.y === pixel.position.y && p.x === pixel.position.x;
+              return p.y + c.rect.y === pixel.position.y && p.x + c.rect.x === pixel.position.x;
             });
           });
         let alpha = !!isComponentPixel ? 1 : 0.3;

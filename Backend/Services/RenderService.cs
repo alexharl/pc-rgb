@@ -1,43 +1,17 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.SignalR;
 using PcRGB.Model.EffectLayers;
 using PcRGB.Model.Render;
-using Microsoft.Extensions.Hosting;
-using System.Linq;
-using Microsoft.AspNetCore.SignalR;
-using PcRGB.Hubs;
-using System.IO;
-using Newtonsoft.Json;
 using PcRGB.Model.Cofig;
 using PcRGB.Model.Control;
+using PcRGB.Hubs;
+using PcRGB.Model.Extensions;
 
-/*
-          0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19
-
-0         0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-1         0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-2         0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-3         3   0   0   0   0   0   0   0   0   0   4   4   4   4   4   4   0   0   0   0
-4         0   0   0   0   0   1   2   0   0   0   0   0   0   0   0   0   0   0   0   0
-5         3   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-6         0   0   0   0   0   1   2   0   0   0   0   0   0   0   0   0   0   0   0   0
-7         3   0   0   0   0   0   0   0   0   0   5   5   5   5   5   0   0   0   0   0
-8         0   0   0   0   0   1   2   0   0   5   0   0   0   0   0   5   0   0   0   0
-9         3   0   0   0   0   0   0   0   0   5   0   0   0   0   0   5   0   0   0   0
-10        0   0   0   0   0   1   2   0   0   5   0   0   0   0   0   5   0   0   0   0
-11        3   0   0   0   0   0   0   0   0   5   0   0   0   0   0   5   0   0   0   0
-12        0   0   0   0   0   1   2   0   0   5   0   0   0   0   0   5   0   0   0   0
-13        3   0   0   0   0   0   0   0   0   0   5   5   5   5   5   0   0   0   0   0
-14        0   0   0   0   0   1   2   0   0   0   0   0   0   0   0   0   0   0   0   0
-15        0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-16        0   0   0   0   0   1   2   0   0   0   0   0   0   0   0   0   0   0   0   0
-17        0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-18        0   0   0   0   0   1   2   0   0   0   0   0   0   0   0   0   0   0   0   0
-19        0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-
-*/
 namespace PcRGB.Services
 {
     public class RenderService : BackgroundService
@@ -66,41 +40,44 @@ namespace PcRGB.Services
 
             CreateLayers();
 
-            // _ = Renderer?.Animate();
+            var animateOnStartup = Environment.GetEnvironmentVariable("PCRGB__AnimateOnStartup");
+            if (!string.IsNullOrWhiteSpace(animateOnStartup) && animateOnStartup == "true")
+            {
+                _ = Renderer?.Animate();
+            }
 
             return Task.CompletedTask;
         }
 
         public void LoadConfig(string path)
         {
-            using (StreamReader r = new StreamReader(path))
+            RendererConfig config = RendererConfig.Load(path);
+            if (config != null)
             {
-                string json = r.ReadToEnd();
-                RendererConfig config = JsonConvert.DeserializeObject<RendererConfig>(json);
-
-                Renderer = new Renderer(config.Name, config.Width, config.Height, layer =>
-                {
-                    var buffer = new List<byte>();
-                    foreach (var component in Components)
-                    {
-                        buffer.AddRange(component.BufferFrom(layer));
-                    }
-
-                    _serialService.Write(buffer);
-                    _serialService.Write(ControllerCommand.Show().Buffer);
-
-                    _hubContext.Clients.All.SendAsync("layer", Renderer.Pixels);
-                });
+                Renderer = new Renderer(config.Name, config.Width, config.Height, OnRendered);
 
                 if (config.Components?.Count() > 0)
                 {
-                    Components.AddRange(config.Components.Select(c => Component.FromConfig(c)));
+                    Components.AddRange(config.Components.Select(c => Component.FromConfig(c)).ToArray());
                 }
             }
+        }
+        private void OnRendered(Layer layer)
+        {
+            // send "SET_COMPONENT" command with pixel values for each component
+            _serialService.Write(Components.BufferFrom(layer));
+
+            // send "SHOW" command to display new data
+            _serialService.Write(ControllerCommand.Show().Buffer);
+
+            // notify webClients
+            _hubContext.Clients.All.SendAsync("layer", Renderer.Pixels);
         }
 
         private void CreateLayers()
         {
+            if (Renderer == null) return;
+
             var movingRainbowEffect = new MovingRainbowEffect(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
             movingRainbowEffect.Activate();
             Renderer.Layers.Add(movingRainbowEffect);
@@ -117,7 +94,7 @@ namespace PcRGB.Services
 
             var drawLayerEffect = new DrawLayerEffect(3, 2, 5, 5);
             drawLayerEffect.Activate();
-            diffusePointEffect.Visible = false;
+            drawLayerEffect.Visible = false;
             Renderer.Layers.Add(drawLayerEffect);
         }
 
