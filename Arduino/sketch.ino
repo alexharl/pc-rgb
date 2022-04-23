@@ -2,10 +2,9 @@
 
 #define BAUDRATE 115200
 
-// number of LEDs on compoments
-int8_t NUM_LEDS[] = {12, 8, 8, 6, 6, 20};
-#define NUM_COMPONENTS 6 // always sizeof(NUM_LEDS)
-#define MAX_LEDS 20      // max number of leds a component can have
+int8_t NUM_LEDS[] = {12, 8, 8, 6, 6, 20}; // number of LEDs on compoments
+#define NUM_COMPONENTS 6                  // always sizeof(NUM_LEDS)
+#define MAX_LEDS 20                       // max number of leds a component can have
 
 // indexes of components (for readability)
 #define GPU 0
@@ -36,6 +35,7 @@ void setup()
 {
     Serial.begin(BAUDRATE);
 
+    // initialize FastLED controllers
     FastLED.addLeds<WS2811, GPU_PIN, RGB>(leds[GPU], NUM_LEDS[GPU]);
     FastLED.addLeds<WS2811, RAM_1_PIN, RGB>(leds[RAM_1], NUM_LEDS[RAM_1]);
     FastLED.addLeds<WS2811, RAM_2_PIN, RGB>(leds[RAM_2], NUM_LEDS[RAM_2]);
@@ -44,6 +44,7 @@ void setup()
     FastLED.addLeds<WS2811, CPU_PIN, RGB>(leds[CPU], NUM_LEDS[CPU]);
 }
 
+/* wait until a new byte is available */
 void waitForSerial()
 {
     while (!Serial.available())
@@ -55,7 +56,9 @@ void loop()
 {
     waitForSerial();
 
+    // interpret first byte as command
     uint8_t command = Serial.read();
+
     switch (command)
     {
     case SET_COMPONENT:
@@ -73,17 +76,23 @@ void setComponent()
 
     // read component index
     uint8_t component_index = Serial.read();
+
+    // check wether component index is valid
     if (component_index >= NUM_COMPONENTS)
         return;
 
+    // read color values for all LEDs in component
     int led_index = 0;
     while (led_index < NUM_LEDS[component_index])
     {
+        // array to store HSV values in
         uint8_t hsv[3] = {0, 0, 0};
 
         waitForSerial();
+        // read next 3 bytes into hsv array
         Serial.readBytes((uint8_t *)hsv, 3);
 
+        // set LED value from hsv array
         leds[component_index][led_index] = CHSV(hsv[0], hsv[1], hsv[2]);
 
         led_index++;
