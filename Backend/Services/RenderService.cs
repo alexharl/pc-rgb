@@ -64,7 +64,7 @@ namespace PcRGB.Services
         }
         private void OnRendered(Layer layer)
         {
-            // send "SET_COMPONENT" command with pixel values for each component
+            // send "SET_CONTROLLER" command with pixel values for each component
             _serialService.Write(Components.BufferFrom(layer));
 
             // send "SHOW" command to display new data

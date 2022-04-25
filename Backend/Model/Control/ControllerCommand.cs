@@ -5,7 +5,7 @@ namespace PcRGB.Model.Control
     public class ControllerCommand
     {
         public static byte NOOP = 0;
-        public static byte SET_COMPONENT = 1;
+        public static byte SET_CONTROLLER = 1;
         public static byte SHOW = 2;
 
         public byte Command;
@@ -13,7 +13,7 @@ namespace PcRGB.Model.Control
 
         public static ControllerCommand SetComponent(byte component)
         {
-            return new ControllerCommand { Command = SET_COMPONENT, Buffer = new List<byte> { SET_COMPONENT, component } };
+            return new ControllerCommand { Command = SET_CONTROLLER, Buffer = new List<byte> { SET_CONTROLLER, component } };
         }
 
         public static ControllerCommand Show()

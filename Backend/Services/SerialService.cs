@@ -56,6 +56,7 @@ namespace PcRGB.Services
 
         private void ProcessBuffer(List<byte> bBuffer)
         {
+            Console.WriteLine(bBuffer);
         }
 
         public void Write(IEnumerable<byte> buffer)
