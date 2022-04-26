@@ -49,6 +49,6 @@ void setComponent()
     Serial.readBytes((uint8_t *)buffer, sizeof(buffer));
 
     // read color values for all LEDs in controller
-    for (uint8_t led = 0, value_index = 0; led < num_leds; value_index = ++led * 3)
-        FastLED[controller][led] = CHSV(buffer[value_index], buffer[value_index + 1], buffer[value_index + 2]);
+    for (uint8_t led = 0; led < num_leds; led++)
+        FastLED[controller][led] = (CHSV &)buffer[led * 3];
 }
