@@ -46,9 +46,10 @@ void setComponent()
     uint8_t buffer[num_leds * 3];                  // prepare buffer
 
     waitForSerial();
+    // read incoming bytes for all LEDs into buffer
     Serial.readBytes((uint8_t *)buffer, sizeof(buffer));
 
-    // read color values for all LEDs in controller
+    // copy HSV values from buffer to FastLED
     for (uint8_t led = 0; led < num_leds; led++)
         FastLED[controller][led] = (CHSV &)buffer[led * 3];
 }
