@@ -46,7 +46,7 @@ namespace PcRGB.Controllers
         }
 
         [HttpGet("components")]
-        public IEnumerable<Component> GetComponents()
+        public IEnumerable<Model.Render.Controller> GetComponents()
         {
             return _renderService.Components;
         }

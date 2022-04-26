@@ -11,7 +11,7 @@ namespace PcRGB.Model.Cofig
         public int Y { get; set; }
     }
 
-    public class ComponentConfig
+    public class ControllerConfig
     {
         public string Name { get; set; }
         public int X { get; set; }
@@ -28,7 +28,7 @@ namespace PcRGB.Model.Cofig
         public int Width { get; set; }
         public int Height { get; set; }
 
-        public IEnumerable<ComponentConfig> Components { get; set; }
+        public IEnumerable<ControllerConfig> Controllers { get; set; }
 
         public static RendererConfig Load(string path)
         {

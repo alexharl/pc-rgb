@@ -2,7 +2,7 @@
   "name": "Canvas",
   "width": 20,
   "height": 20,
-  "components": [
+  "controllers": [
     {
       "id": 1,
       "x": 6,

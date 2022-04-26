@@ -17,7 +17,7 @@ namespace PcRGB.Services
     public class RenderService : BackgroundService
     {
         public Renderer Renderer;
-        public List<Component> Components = new List<Component>();
+        public List<Controller> Components = new List<Controller>();
 
         private readonly SerialService _serialService;
         private readonly IHubContext<CanvasHub> _hubContext;
@@ -32,7 +32,7 @@ namespace PcRGB.Services
         {
             Console.WriteLine("[RenderService] ExecuteAsync");
 
-            var configPath = Environment.GetEnvironmentVariable("PCRGB__ComponentsConfig");
+            var configPath = Environment.GetEnvironmentVariable("PCRGB__ControllerConfig");
             if (!string.IsNullOrWhiteSpace(configPath))
             {
                 LoadConfig(configPath);
@@ -56,9 +56,9 @@ namespace PcRGB.Services
             {
                 Renderer = new Renderer(config.Name, config.Width, config.Height, OnRendered);
 
-                if (config.Components?.Count() > 0)
+                if (config.Controllers?.Count() > 0)
                 {
-                    Components.AddRange(config.Components.Select(c => Component.FromConfig(c)).ToArray());
+                    Components.AddRange(config.Controllers.Select(c => Controller.FromConfig(c)).ToArray());
                 }
             }
         }

@@ -38,7 +38,7 @@ namespace PcRGB.Model.Extensions
                     point(x, y);
         }
 
-        public static List<byte> BufferFrom(this List<Component> components, Layer layer)
+        public static List<byte> BufferFrom(this List<Controller> components, Layer layer)
         {
             var buffer = new List<byte>();
 
