@@ -28,7 +28,7 @@ namespace PcRGB.Services
             {
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(portBaud)) portBaud = "19200";
+                    if (string.IsNullOrWhiteSpace(portBaud)) portBaud = "115200";
 
                     port = new SerialPort(portName, Int32.Parse(portBaud), Parity.None, 8, StopBits.One);
                     port.DataReceived += new SerialDataReceivedEventHandler(handlePortDataReceived);
