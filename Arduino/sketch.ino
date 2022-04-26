@@ -1,5 +1,5 @@
 #include "FastLED.h"
-#include "FastLEDSerial.h"
+#include "FastLEDStream.h"
 
 // indexes of components (for readability)
 #define GPU 0
@@ -26,19 +26,20 @@ CRGB leds[NUM_COMPONENTS][MAX_LEDS];
 
 void setup()
 {
-    Serial.begin(115200); // recommended min baudrate
+    // recommended baudrate
+    Serial.begin(115200);
 
     // initialize FastLED controllers
     // see: https://github.com/FastLED/FastLED/wiki/Overview
-    FastLED.addLeds<WS2811, GPU_PIN>(leds[GPU], NUM_LEDS[GPU]);
-    FastLED.addLeds<WS2811, RAM_1_PIN>(leds[RAM_1], NUM_LEDS[RAM_1]);
-    FastLED.addLeds<WS2811, RAM_2_PIN>(leds[RAM_2], NUM_LEDS[RAM_2]);
-    FastLED.addLeds<WS2811, RESERVOIRE_PIN>(leds[RESERVOIRE], NUM_LEDS[RESERVOIRE]);
-    FastLED.addLeds<WS2811, SSD_PIN>(leds[SSD], NUM_LEDS[SSD]);
-    FastLED.addLeds<WS2811, CPU_PIN>(leds[CPU], NUM_LEDS[CPU]);
+    FastLED.addLeds<WS2811, GPU_PIN, BRG>(leds[GPU], NUM_LEDS[GPU]);
+    FastLED.addLeds<WS2811, RAM_1_PIN, BRG>(leds[RAM_1], NUM_LEDS[RAM_1]);
+    FastLED.addLeds<WS2811, RAM_2_PIN, BRG>(leds[RAM_2], NUM_LEDS[RAM_2]);
+    FastLED.addLeds<WS2811, RESERVOIRE_PIN, BRG>(leds[RESERVOIRE], NUM_LEDS[RESERVOIRE]);
+    FastLED.addLeds<WS2811, SSD_PIN, BRG>(leds[SSD], NUM_LEDS[SSD]);
+    FastLED.addLeds<WS2811, CPU_PIN, BRG>(leds[CPU], NUM_LEDS[CPU]);
 }
 
 void loop()
 {
-    FastLEDSerial();
+    FastLEDStream::command(Serial);
 }

@@ -42,7 +42,7 @@ export const Canvas: FC<ICanvasProps> = ({ pixelWidth, pixelHeight, pixels, comp
       for (let i = 0; i < pixels.length; i++) {
         const pixel = pixels[i];
 
-        const hue = mapValueRange(pixel.color.hue, 0, 255, 360, 0) - 200;
+        const hue = mapValueRange(pixel.color.hue, 0, 255, 360, 0); // - 200;
         const saturation = mapValueRange(pixel.color.saturation, 0, 255, 0, 100);
         const brightness = 100 - mapValueRange(pixel.color.brightness, 0, 255, 0, 100);
 

@@ -43,6 +43,10 @@ export async function animate() {
   return await apiJson('/canvas/render', { method: 'POST' });
 }
 
+export async function serial() {
+  return await apiJson('/canvas/serial', { method: 'POST' });
+}
+
 export async function step() {
   return await apiJson('/canvas/step', { method: 'POST' });
 }

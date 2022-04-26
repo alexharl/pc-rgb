@@ -9,12 +9,10 @@ namespace PcRGB.Controllers
     [Route("[controller]")]
     public class CanvasController : ControllerBase
     {
-        private readonly SerialService _serialService;
         private readonly RenderService _renderService;
 
-        public CanvasController(SerialService serialService, RenderService renderService)
+        public CanvasController(RenderService renderService)
         {
-            _serialService = serialService;
             _renderService = renderService;
         }
 
@@ -38,6 +36,17 @@ namespace PcRGB.Controllers
             return _renderService.Renderer;
         }
 
+        [HttpPost("serial")]
+        public bool ToggleSerial()
+        {
+            if (_renderService.Renderer != null && !_renderService.Renderer.SerialOpen)
+            {
+                return _renderService.SerialConnect();
+            }
+            _renderService.Renderer.SerialDisconnect();
+            return _renderService.Renderer.SerialOpen;
+        }
+
         [HttpPost("step")]
         public Renderer Step()
         {
@@ -48,7 +57,7 @@ namespace PcRGB.Controllers
         [HttpGet("components")]
         public IEnumerable<Model.Render.Controller> GetComponents()
         {
-            return _renderService.Components;
+            return _renderService.Renderer.Components;
         }
 
         [HttpGet("layer/{id}/visible/{visible}")]

@@ -1,24 +1,29 @@
 # General
 
-By sending data via serial connection the `FastLED` library can be controlled.
+If you are using `FastLED` in your Arduino project you can use this library to read `CHSV` color values from a stream into your `CRGB` led array.
 
 # Setup
 
-The only thing needed is to call `FastLEDSerial()` in every loop so the commands and color values can be received via serial.  
-Minimalist setup:
+The only thing needed is to call `FastLEDStream::command(stream)` to read the commands from your stream.  
+You can pass any `Stream` to the `command` function e.g. `Serial`.
 
-```cpp
+**Minimalist setup:**
+
+```ino
 #include "FastLED.h"
-#include "FastLEDSerial.h"
+#include "FastLEDStream.h"
+
 CRGB leds[8]; // 8 LEDs
+
 void setup()
 {
     Serial.begin(115200);
-    FastLED.addLeds<WS2811, 2>(leds, 8); // PIN 2
+    FastLED.addLeds<WS2811, 2>(leds, 8); // Digital Pin 2
 }
+
 void loop()
 {
-    FastLEDSerial(); // listen for commands
+    FastLEDStream::command(Serial); // listen for commands
 }
 ```
 
@@ -26,10 +31,10 @@ void loop()
 
 Every first byte received is interpreted as a command:
 
-- `1` = SET_CONTROLLER
-- `2` = SHOW
+- `1` = set_controller
+- `2` = show
 
-## SET_CONTROLLER
+## set_controller
 
 Second byte specifies index of controller.  
 Number of expected bytes for color values equals to the number of LEDs times `3` (for Hue, Saturation und Brightness)
@@ -37,7 +42,7 @@ Number of expected bytes for color values equals to the number of LEDs times `3`
 ### Example
 
 ```
-SET_CONTROLLER
+set_controller
 |
 |  Controller at index 2
 |  |
@@ -56,6 +61,6 @@ SET_CONTROLLER
 
 All bytes for a component are read and color values are stored in CRGB leds array.
 
-## SHOW
+## show
 
 If the first byte transmitted is `2` `FastLED.show()` ist called.

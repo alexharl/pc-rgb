@@ -1,8 +1,21 @@
 import { Box, Container, Drawer } from '@material-ui/core';
 import { useEffect, useState } from 'react';
-import { animate, connectSignalR, getCanvas, getComponents, layerVisibility, onAnimating, onDisconnected, onReceivePixels, onReconnected, setPixel, step } from '../api';
+import {
+  animate,
+  connectSignalR,
+  getCanvas,
+  getComponents,
+  layerVisibility,
+  onAnimating,
+  onDisconnected,
+  onReceivePixels,
+  onReconnected,
+  serial,
+  setPixel,
+  step
+} from '../api';
 import { Canvas } from '../components/canvas';
-import { CanvasAnimateButton } from '../components/control/canvas-animate-button';
+import { CanvasActionButton, CanvasActionButtonRound } from '../components/control/canvas-action-button';
 import { LayerVisibilityBar } from '../components/control/layer-visibility-bar';
 import { ILayer } from '../model/Layer';
 import { IComponent } from '../model/Model';
@@ -14,6 +27,7 @@ export const PcRGB = () => {
   const [components, setComponents] = useState<IComponent[]>();
   const [canvas, setCanvas] = useState<IRenderer>();
   const [pixels, setPixels] = useState<IPixel[]>();
+  const [serialConnected, setSerialConnected] = useState<boolean>(false);
   const [layers, setLayers] = useState<ILayer[]>();
   const [animating, setAnimating] = useState<boolean>(false);
 
@@ -24,6 +38,7 @@ export const PcRGB = () => {
         setAnimating(canvasResult.animating);
         setPixels(canvasResult.pixels);
         setLayers(canvasResult.layers);
+        setSerialConnected(canvasResult.serialOpen);
       }
     });
 
@@ -105,9 +120,9 @@ export const PcRGB = () => {
           />
         </Box>
         <Box sx={{ marginLeft: '20px' }}>
-          <CanvasAnimateButton
-            animating={animating}
-            toggleAnimation={() =>
+          <CanvasActionButtonRound
+            active={animating}
+            onClick={() =>
               animate().then(canvasResult => {
                 if (canvasResult) {
                   setAnimating(canvasResult.animating);
@@ -115,7 +130,17 @@ export const PcRGB = () => {
               })
             }
           />
-          <CanvasAnimateButton animating={animating} toggleAnimation={() => step()} />
+          <CanvasActionButtonRound offLabel="Step" onClick={() => step()} />
+          <CanvasActionButton
+            active={serialConnected}
+            offLabel="Connect"
+            onLabel="Connected"
+            onClick={() =>
+              serial().then(res => {
+                setSerialConnected(res);
+              })
+            }
+          />
         </Box>
       </Box>
     </Container>

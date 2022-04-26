@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Numerics;
 using PcRGB.Model.Render;
@@ -8,6 +9,8 @@ namespace PcRGB.Model.EffectLayers
         PointF Center = new PointF(4, 13);
         Point Direction = new Point(0, 0);
 
+        byte BaseHue = 0;
+
         public MovingRainbowEffect(int x, int y, int width, int height) : base("Moving Rainbow", x, y, width, height) { }
 
         void UpdatePixels()
@@ -16,12 +19,25 @@ namespace PcRGB.Model.EffectLayers
             {
                 float distanceToCenter = Vector2.Distance(new Vector2(pixel.Position.X, pixel.Position.Y), new Vector2(Center.X, Center.Y));
                 pixel.Color = new HSB(0, 255, 128, 1);
-                pixel.Color.Hue = HSB.MapToValue(distanceToCenter, 0, 20);
+                var distanceHue = HSB.MapToValue(distanceToCenter, 0, 20);
+
+                int overflowHue = distanceHue + BaseHue;
+                if (overflowHue < 255)
+                {
+                    distanceHue = (byte)overflowHue;
+                }
+                else
+                {
+                    distanceHue = (byte)(BaseHue - (255 - distanceHue));
+                }
+
+                pixel.Color.Hue = distanceHue;
             });
         }
 
         public void MoveCenter()
         {
+            BaseHue++;
             switch (Direction.Y)
             {
                 case 1:
@@ -40,6 +56,31 @@ namespace PcRGB.Model.EffectLayers
                         Direction.Y = 1;
                     }
                     break;
+            }
+
+            switch (Direction.X)
+            {
+                case 1:
+                    Center.X -= 0.2f;
+                    if (Center.X <= 0)
+                    {
+                        Center.X = 0;
+                        Direction.X = 0;
+                    }
+                    break;
+                default:
+                    Center.X += 0.2f;
+                    if (Center.X >= Rect.Size.Width - 1)
+                    {
+                        Center.X = Rect.Size.Width - 1;
+                        Direction.X = 1;
+                    }
+                    break;
+            }
+
+            if (BaseHue >= 254)
+            {
+                BaseHue = 0;
             }
         }
 

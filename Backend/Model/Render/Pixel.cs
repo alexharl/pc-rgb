@@ -25,8 +25,6 @@ namespace PcRGB.Model.Render
             {
                 Color = new HSB(pixel.Color.Hue, pixel.Color.Saturation, pixel.Color.Brightness, pixel.Color.Alpha);
             }
-
-
         }
     }
 

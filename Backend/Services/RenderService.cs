@@ -1,30 +1,23 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.SignalR;
 using PcRGB.Model.EffectLayers;
 using PcRGB.Model.Render;
 using PcRGB.Model.Cofig;
-using PcRGB.Model.Control;
 using PcRGB.Hubs;
-using PcRGB.Model.Extensions;
 
 namespace PcRGB.Services
 {
     public class RenderService : BackgroundService
     {
         public Renderer Renderer;
-        public List<Controller> Components = new List<Controller>();
-
-        private readonly SerialService _serialService;
         private readonly IHubContext<CanvasHub> _hubContext;
 
-        public RenderService(SerialService serialService, IHubContext<CanvasHub> hubContext)
+        public RenderService(IHubContext<CanvasHub> hubContext)
         {
-            _serialService = serialService;
             _hubContext = hubContext;
         }
 
@@ -46,30 +39,47 @@ namespace PcRGB.Services
                 _ = Renderer?.Animate();
             }
 
+            SerialConnect();
+
             return Task.CompletedTask;
         }
 
         public void LoadConfig(string path)
         {
             RendererConfig config = RendererConfig.Load(path);
-            if (config != null)
-            {
-                Renderer = new Renderer(config.Name, config.Width, config.Height, OnRendered);
+            Renderer = Renderer.FromConfig(config, OnRendered);
+        }
 
-                if (config.Controllers?.Count() > 0)
+        public bool SerialConnect()
+        {
+            var portName = Environment.GetEnvironmentVariable("PCRGB__ComPortName");
+            var portBaud = Environment.GetEnvironmentVariable("PCRGB__ComPortBaudrate");
+
+            if (string.IsNullOrWhiteSpace(portName))
+            {
+                Console.WriteLine("[SerialService] Port not specified");
+            }
+            else
+            {
+                try
                 {
-                    Components.AddRange(config.Controllers.Select(c => Controller.FromConfig(c)).ToArray());
+                    if (string.IsNullOrWhiteSpace(portBaud)) portBaud = "115200";
+
+                    Renderer?.SerialConnect(portName, Int32.Parse(portBaud));
+
+                    return Renderer.SerialOpen;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"[RenderService] Failed to connect to port {e.Message}");
                 }
             }
+
+            return false;
         }
+
         private void OnRendered(Layer layer)
         {
-            // send "SET_CONTROLLER" command with pixel values for each component
-            _serialService.Write(Components.BufferFrom(layer));
-
-            // send "SHOW" command to display new data
-            _serialService.Write(ControllerCommand.Show().Buffer);
-
             // notify webClients
             _hubContext.Clients.All.SendAsync("layer", Renderer.Pixels);
         }

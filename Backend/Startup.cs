@@ -23,8 +23,6 @@ namespace PcRGB
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSingleton<SerialService>();
-            services.AddHostedService<SerialService>(provider => provider.GetService<SerialService>());
 
             services.AddSingleton<RenderService>();
             services.AddHostedService<RenderService>(provider => provider.GetService<RenderService>());
