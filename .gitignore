@@ -5,6 +5,10 @@
 /Backend/obj/**/*
 /Backend*.db
 
+/Core/bin/**/*
+/Core/obj/**/*
+/Core*.db
+
 /WebClient/build
 /WebClient/node_modules
 
