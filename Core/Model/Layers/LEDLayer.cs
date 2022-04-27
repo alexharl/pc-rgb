@@ -16,19 +16,13 @@ namespace core.Model.Layers
             HardwareId = hardwareId;
             PixelPositions = new List<Point>();
         }
+
         public List<Pixel> PixelsFrom(Layer layer)
         {
             return PixelPositions.Select(position =>
             {
                 return layer.PixelAt(position.X + Rect.X, position.Y + Rect.Y) ?? new Pixel(position);
             }).ToList();
-        }
-
-        public static LEDLayer FromConfig(ControllerConfig config)
-        {
-            var component = new LEDLayer(config.Name, (byte)config.Id, config.X, config.Y, config.Width, config.Height);
-            component.PixelPositions = config.PixelPositions.Select(p => new Point(p.X, p.Y)).ToList();
-            return component;
         }
     }
 }

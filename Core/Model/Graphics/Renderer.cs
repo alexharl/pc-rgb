@@ -44,15 +44,6 @@ namespace core.Model.Graphics
         {
             OnRendered = onRendered;
         }
-
-        public static Renderer FromConfig(RendererConfig config, OnRenderedDelegate onRendered)
-        {
-            if (config == null) return null;
-
-            var renderer = new Renderer(config.Name, config.Width, config.Height, onRendered);
-
-            return renderer;
-        }
         public void Next()
         {
             Clear();

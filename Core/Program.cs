@@ -18,23 +18,19 @@ namespace core
         static Renderer _renderer { get; set; }
         static FastLEDStream _stream { get; set; }
 
-        static void Main(string[] args)
+        static void InitializeFastLEDStream()
         {
-            ManualResetEvent manualResetEvent = new ManualResetEvent(false);
-
-            Console.WriteLine("Startup");
-
-            var portName = Environment.GetEnvironmentVariable("PCRGB__ComPortName");
-            var portBaud = Environment.GetEnvironmentVariable("PCRGB__ComPortBaudrate");
+            var portName = Environment.GetEnvironmentVariable("FastLEDStream__ComPortName");
 
             if (string.IsNullOrWhiteSpace(portName))
             {
-                Console.WriteLine("[SerialService] Port not specified");
+                Console.WriteLine("[FastLEDStream] Port not specified");
             }
             else
             {
                 try
                 {
+                    var portBaud = Environment.GetEnvironmentVariable("FastLEDStream__ComPortBaudrate");
                     if (string.IsNullOrWhiteSpace(portBaud)) portBaud = "115200";
 
                     _stream = new FastLEDStream(portName, Int32.Parse(portBaud));
@@ -45,39 +41,55 @@ namespace core
                     Console.WriteLine($"[FastLEDStream] Failed to connect to port {e.Message}");
                 }
             }
+        }
 
+        static async Task InitializeRenderer()
+        {
+            List<LEDLayer> ledLayers = new List<LEDLayer>();
 
-            var thread = new Thread(async () =>
+            var path = Environment.GetEnvironmentVariable("Core__ControllerConfig");
+            if (!string.IsNullOrWhiteSpace(path))
             {
-                List<LEDLayer> components = new List<LEDLayer>();
+                RendererConfig config = RendererConfig.Load(path);
 
-                var path = Environment.GetEnvironmentVariable("PCRGB__ControllerConfig");
-                if (!string.IsNullOrWhiteSpace(path))
+                if (config.Controllers?.Count() > 0)
                 {
-                    RendererConfig config = RendererConfig.Load(path);
-                    if (config.Controllers?.Count() > 0)
+                    ledLayers.AddRange(config.Controllers.Select(controller =>
                     {
-                        components.AddRange(config.Controllers.Select(c => LEDLayer.FromConfig(c)).ToArray());
-                    }
-
-                    _renderer = Renderer.FromConfig(config, (layer) =>
-                    {
-                        foreach (var component in components)
-                        {
-                            var pixelBuffer = new List<byte>().AddPixels(component.PixelsFrom(layer));
-                            _stream.SetController(component.HardwareId, pixelBuffer);
-                        }
-
-                        _stream.Show();
-                    });
-
-                    var movingRainbowEffect = new MovingRainbowEffect(0, 0, _renderer.Rect.Size.Width, _renderer.Rect.Size.Height);
-                    movingRainbowEffect.Activate();
-                    _renderer.Layers.Add(movingRainbowEffect);
-
-                    await _renderer.Animate();
+                        var ledLayer = new LEDLayer(controller.Name, (byte)controller.Id, controller.X, controller.Y, controller.Width, controller.Height);
+                        ledLayer.PixelPositions = controller.PixelPositions.Select(p => new Point(p.X, p.Y)).ToList();
+                        return ledLayer;
+                    }).ToArray());
                 }
 
+                _renderer = new Renderer(config.Name, config.Width, config.Height, (layer) =>
+                {
+                    foreach (var ledLayer in ledLayers)
+                    {
+                        var pixelBuffer = new List<byte>().AddPixels(ledLayer.PixelsFrom(layer));
+                        _stream.SetController(ledLayer.HardwareId, pixelBuffer);
+                    }
+
+                    _stream.Show();
+                });
+
+                var movingRainbowEffect = new MovingRainbowEffect(0, 0, _renderer.Rect.Size.Width, _renderer.Rect.Size.Height);
+                movingRainbowEffect.Activate();
+                _renderer.Layers.Add(movingRainbowEffect);
+
+                await _renderer.Animate();
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            ManualResetEvent manualResetEvent = new ManualResetEvent(false);
+
+            InitializeFastLEDStream();
+
+            var thread = new Thread(() =>
+            {
+                _ = InitializeRenderer();
             });
             thread.Start();
 
