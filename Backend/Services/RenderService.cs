@@ -97,10 +97,10 @@ namespace PcRGB.Services
             scanningLinesEffect.Visible = false;
             Renderer.Layers.Add(scanningLinesEffect);
 
-            var diffusePointEffect = new Ripple(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
-            diffusePointEffect.Activate();
-            diffusePointEffect.Visible = false;
-            Renderer.Layers.Add(diffusePointEffect);
+            var rippleEffect = new Ripple(0, 0, Renderer.Rect.Size.Width, Renderer.Rect.Size.Height);
+            rippleEffect.Activate();
+            rippleEffect.Visible = false;
+            Renderer.Layers.Add(rippleEffect);
 
             var drawLayerEffect = new DrawLayerEffect(3, 2, 5, 5);
             drawLayerEffect.Activate();

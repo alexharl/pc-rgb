@@ -10,7 +10,8 @@ namespace core.Model.Graphics
 
     public enum LayerBlendMode
     {
-        NORMAL = 1
+        Normal = 1,
+        Brightness = 2
     }
 
     public class Layer
@@ -20,7 +21,7 @@ namespace core.Model.Graphics
         public string Name { get; set; }
         public List<Pixel> Pixels { get; set; }
 
-        public LayerBlendMode BlendMode { get; set; } = LayerBlendMode.NORMAL;
+        public LayerBlendMode BlendMode { get; set; } = LayerBlendMode.Normal;
         public List<Layer> Layers { get; set; } = new List<Layer>();
 
         public bool Visible { get; set; } = true;
@@ -72,16 +73,29 @@ namespace core.Model.Graphics
 
         public void Apply(Layer layer)
         {
-            if (!layer.Visible) return;
+            if (layer == null || !layer.Visible) return;
 
             var intersection = Rectangle.Intersect(Rect, layer.Rect);
             intersection.Each((x, y) =>
             {
                 Pixel from = layer.PixelAt(x, y);
                 Pixel to = PixelAt(x + intersection.X, y + intersection.Y);
-                if (from != null && to != null)
+
+                if (to == null) return;
+
+                if (layer.BlendMode == LayerBlendMode.Normal)
                 {
+                    if (from == null) return;
+                    if (from.Color.Alpha == 0) return;
+                    if (from.Color.Alpha == 1)
+                    {
+                        to.Color = HSB.Copy(from.Color);
+                    }
                     to.Apply(from);
+                }
+                else if (layer.BlendMode == LayerBlendMode.Brightness)
+                {
+                    to.Color.Brightness = from.Color.Brightness;
                 }
             });
         }

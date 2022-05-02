@@ -4,7 +4,7 @@
   "height": 20,
   "controllers": [
     {
-      "id": 1,
+      "hardwareId": 1,
       "x": 6,
       "y": 4,
       "width": 1,
@@ -22,7 +22,7 @@
       ]
     },
     {
-      "id": 2,
+      "hardwareId": 2,
       "x": 5,
       "y": 4,
       "width": 1,
@@ -40,7 +40,7 @@
       ]
     },
     {
-      "id": 3,
+      "hardwareId": 3,
       "x": 0,
       "y": 3,
       "width": 1,
@@ -56,7 +56,7 @@
       ]
     },
     {
-      "id": 4,
+      "hardwareId": 4,
       "x": 10,
       "y": 3,
       "width": 6,
@@ -72,7 +72,7 @@
       ]
     },
     {
-      "id": 5,
+      "hardwareId": 5,
       "x": 9,
       "y": 7,
       "width": 7,

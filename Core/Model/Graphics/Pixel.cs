@@ -17,15 +17,5 @@ namespace core.Model.Graphics
             Position = position;
             Color = color;
         }
-
-        public void Apply(Pixel pixel)
-        {
-            if (pixel.Color.Alpha == 0) return;
-            if (pixel.Color.Alpha == 1)
-            {
-                Color = new HSB(pixel.Color.Hue, pixel.Color.Saturation, pixel.Color.Brightness, pixel.Color.Alpha);
-            }
-        }
     }
-
 }

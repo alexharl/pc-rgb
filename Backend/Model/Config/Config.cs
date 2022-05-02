@@ -18,7 +18,7 @@ namespace PcRGB.Model.Cofig
         public int Y { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-        public byte Id { get; set; }
+        public byte HardwareId { get; set; }
         public IEnumerable<PixelPositionConfig> PixelPositions { get; set; }
     }
 

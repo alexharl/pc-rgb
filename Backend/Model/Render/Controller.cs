@@ -35,7 +35,7 @@ namespace PcRGB.Model.Render
 
         public static Controller FromConfig(ControllerConfig config)
         {
-            var component = new Controller(config.Name, (byte)config.Id, config.X, config.Y, config.Width, config.Height);
+            var component = new Controller(config.Name, (byte)config.HardwareId, config.X, config.Y, config.Width, config.Height);
             component.PixelPositions = config.PixelPositions.Select(p => new Point(p.X, p.Y)).ToList();
             return component;
         }

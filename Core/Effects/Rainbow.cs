@@ -22,17 +22,7 @@ namespace core.Effects
                 pixel.Color = new HSB(0, 255, 128, 1);
                 var distanceHue = HSB.MapToValue(distanceToCenter, 0, 20);
 
-                int overflowHue = distanceHue + BaseHue;
-                if (overflowHue < 255)
-                {
-                    distanceHue = (byte)overflowHue;
-                }
-                else
-                {
-                    distanceHue = (byte)(BaseHue - (255 - distanceHue));
-                }
-
-                pixel.Color.Hue = distanceHue;
+                pixel.Color.Hue = (byte)(distanceHue + BaseHue);
             });
         }
 

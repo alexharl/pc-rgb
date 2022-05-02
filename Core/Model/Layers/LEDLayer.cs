@@ -10,12 +10,9 @@ namespace core.Model.Layers
     public class LEDLayer : Layer
     {
         public byte HardwareId { get; set; }
-        public List<Point> PixelPositions { get; set; }
-        public LEDLayer(string name, byte hardwareId, int x, int y, int width, int height) : base(name, x, y, width, height)
-        {
-            HardwareId = hardwareId;
-            PixelPositions = new List<Point>();
-        }
+        public List<Point> PixelPositions { get; set; } = new List<Point>();
+
+        public LEDLayer(string name, int x, int y, int w, int h) : base(name, x, y, w, h) { }
 
         public List<Pixel> PixelsFrom(Layer layer)
         {

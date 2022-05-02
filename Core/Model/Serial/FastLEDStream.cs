@@ -22,7 +22,7 @@ namespace core.Model.Serial
 
         public bool Open()
         {
-            if (port.IsOpen) return true;
+            if (IsOpen) return true;
 
             port.Open();
             return port.IsOpen;
@@ -30,7 +30,7 @@ namespace core.Model.Serial
 
         public bool Close()
         {
-            if (!port.IsOpen) return false;
+            if (!IsOpen) return false;
 
             port.Close();
             return port.IsOpen;
