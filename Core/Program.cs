@@ -1,4 +1,7 @@
-﻿using System;
+﻿using System.IO;
+using System.IO.Pipes;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -77,12 +80,13 @@ namespace core
                 pulseEffect.Activate();
                 canvas.Layers.Add(pulseEffect);
 
-                // var rippleEffect = new RippleEffect(0, 0, canvas.Rect.Size.Width, canvas.Rect.Size.Height);
-                // rippleEffect.Activate();
-                // canvas.Layers.Add(rippleEffect);
+                var rippleEffect = new RippleEffect(0, 0, canvas.Rect.Size.Width, canvas.Rect.Size.Height);
+                rippleEffect.Activate();
+                canvas.Layers.Add(rippleEffect);
 
                 Console.WriteLine($"[Core] Start...");
                 var animationLoop = new Loop(() =>
+
                 {
                     canvas.Clear();
                     canvas.Update();
@@ -91,14 +95,14 @@ namespace core
 
                     foreach (var ledLayer in controllerLayers)
                     {
-                        var pixelBuffer = new List<byte>().AddPixels(ledLayer.PixelsFrom(render));
-                        _stream.SetController(ledLayer.HardwareId, pixelBuffer);
+                        var pixels = ledLayer.PixelsFrom(render);
+                        _stream.SetController(ledLayer.HardwareId, pixels.Raw());
                     }
 
                     _stream.Show();
                 });
 
-                await animationLoop.StartLoop();
+                await animationLoop.ToggleLoop();
             }
         }
 

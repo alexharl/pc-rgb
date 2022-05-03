@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using core.Common.Helper;
 
 namespace core.Model.Graphics
@@ -41,6 +42,16 @@ namespace core.Model.Graphics
         public static byte MapToValue(float value, float from, float to)
         {
             return (byte)Math.Map(value, from, to, 0, 255);
+        }
+
+        public List<byte> Raw()
+        {
+            return new List<byte>
+            {
+                Hue,
+                Saturation,
+                Brightness
+            };
         }
     }
 }

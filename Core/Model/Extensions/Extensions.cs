@@ -13,16 +13,12 @@ namespace core.Model.Extensions
         /// <param name="buffer">the byte array</param>
         /// <param name="pixels">the pixels</param>
         /// <returns>buffer with pixel values</returns>
-        public static List<byte> AddPixels(this List<byte> buffer, List<Pixel> pixels)
+        public static List<byte> Raw(this List<Pixel> pixels)
         {
+            var buffer = new List<byte>();
             foreach (var pixel in pixels)
             {
-                buffer.AddRange(new List<byte>
-                {
-                    pixel.Color.Hue,
-                    pixel.Color.Saturation,
-                    pixel.Color.Brightness
-                });
+                buffer.AddRange(pixel.Color.Raw());
             }
             return buffer;
         }

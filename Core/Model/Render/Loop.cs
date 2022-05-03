@@ -45,7 +45,7 @@ namespace core.Model.Layers
             }
         }
 
-        public async Task StartLoop()
+        public async Task ToggleLoop()
         {
             if (Looping)
             {

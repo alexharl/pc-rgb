@@ -91,7 +91,6 @@ namespace core.Model.Graphics
                     {
                         to.Color = HSB.Copy(from.Color);
                     }
-                    to.Apply(from);
                 }
                 else if (layer.BlendMode == LayerBlendMode.Brightness)
                 {

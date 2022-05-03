@@ -5,21 +5,23 @@ using Newtonsoft.Json;
 
 namespace core.Model.Cofig
 {
-    public class PixelPositionConfig
+    public class PositionConfig
     {
         public int X { get; set; }
         public int Y { get; set; }
     }
 
-    public class ControllerConfig
+    public class LayerConfig : PositionConfig
     {
         public string Name { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
+    }
+
+    public class ControllerConfig : LayerConfig
+    {
         public byte HardwareId { get; set; }
-        public IEnumerable<PixelPositionConfig> PixelPositions { get; set; }
+        public IEnumerable<PositionConfig> PixelPositions { get; set; }
     }
 
     public class RendererConfig
